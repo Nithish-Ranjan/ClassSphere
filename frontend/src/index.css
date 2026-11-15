@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F7F9FC;
+    color: #172B43;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input, select, textarea, button {
+    font-family: inherit;
+  }
+}
+
+/* Custom restrained institutional scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F4F8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Institutional card and elevated container utilities */
+.card-elevation {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(16, 35, 63, 0.04), 0 1px 2px -1px rgba(16, 35, 63, 0.03);
+}
+
+.card-elevation-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-elevation-hover:hover {
+  box-shadow: 0 4px 6px -1px rgba(16, 35, 63, 0.08), 0 2px 4px -2px rgba(16, 35, 63, 0.04);
+  border-color: #CBD5E1;
+}
+
+/* Accessible focus outline */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal;
+}
