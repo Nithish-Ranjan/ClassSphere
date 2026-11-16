@@ -1,38 +1,30 @@
 import React from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from './Button';
 
-interface ErrorStateProps {
-  title?: string;
+export const ErrorState: React.FC<{
   message?: string;
   onRetry?: () => void;
-  className?: string;
-}
-
-export const ErrorState: React.FC<ErrorStateProps> = ({
-  title = 'Unable to Load Data',
-  message = 'An unexpected network or service error occurred. Please retry.',
-  onRetry,
-  className = '',
-}) => {
+}> = ({ message = 'Failed to load data from institutional API.', onRetry }) => {
   return (
-    <div
-      className={`rounded-xl border border-red-200 bg-red-50/60 p-6 text-center ${className}`}
-      role="alert"
-    >
-      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-brandDanger">
-        <AlertCircle className="h-5 w-5" aria-hidden="true" />
+    <div className="py-14 p-6 bg-rose-50/60 rounded-2xl border border-rose-200 text-center max-w-lg mx-auto space-y-4">
+      <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+        <AlertCircle className="w-6 h-6" />
       </div>
-      <h3 className="mt-3 text-sm font-semibold text-textPrimary tracking-tight">{title}</h3>
-      <p className="mt-1 text-xs text-textSecondary max-w-md mx-auto leading-relaxed">{message}</p>
+      <div className="space-y-1">
+        <h4 className="text-sm font-bold text-rose-900 tracking-tight">System Request Interrupted</h4>
+        <p className="text-xs text-rose-700 leading-relaxed max-w-sm mx-auto">{message}</p>
+      </div>
       {onRetry && (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={onRetry}
-          className="mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-red-200 text-brandDanger hover:bg-red-50 transition-colors shadow-subtle cursor-pointer focus-ring"
+          leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+          className="border-rose-300 text-rose-800 hover:bg-rose-100/70"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Try Again</span>
-        </button>
+          Retry Request
+        </Button>
       )}
     </div>
   );

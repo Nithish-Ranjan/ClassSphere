@@ -1,30 +1,19 @@
 import React from 'react';
 
-interface LoadingStateProps {
-  label?: string;
-  className?: string;
-  size?: 'sm' | 'md' | 'lg';
-}
-
-export const LoadingState: React.FC<LoadingStateProps> = ({
-  label = 'Loading operational telemetry...',
-  className = '',
-  size = 'md',
+export const LoadingState: React.FC<{ label?: string }> = ({
+  label = 'Loading institutional records...',
 }) => {
-  const sizeClasses = {
-    sm: 'w-5 h-5 border-2',
-    md: 'w-7 h-7 border-3',
-    lg: 'w-9 h-9 border-3',
-  };
-
   return (
-    <div className={`flex flex-col items-center justify-center py-12 px-4 ${className}`} role="status" aria-live="polite">
-      <div
-        className={`${sizeClasses[size]} border-teal border-t-transparent rounded-full animate-spin`}
-        aria-hidden="true"
-      />
-      {label && <p className="mt-3 text-xs font-medium text-textSecondary tracking-wide">{label}</p>}
-      <span className="sr-only">Loading</span>
+    <div className="py-16 flex flex-col items-center justify-center text-center space-y-4">
+      <div className="relative">
+        <div className="w-12 h-12 rounded-2xl bg-[var(--role-soft)] border border-[var(--role-soft-border)] flex items-center justify-center animate-pulse">
+          <div className="w-6 h-6 border-3 border-[var(--role-primary)] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <div className="text-sm font-bold text-[var(--role-text)] tracking-tight">{label}</div>
+        <p className="text-xs text-[var(--role-text-muted)]">Connecting to institutional backend telemetry...</p>
+      </div>
     </div>
   );
 };

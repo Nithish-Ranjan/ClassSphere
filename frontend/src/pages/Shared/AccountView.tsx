@@ -57,7 +57,7 @@ export const AccountView: React.FC = () => {
     >
       <div className="space-y-6 max-w-4xl">
         {/* Top Profile Card */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 card-elevation flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
           <div className="flex items-center gap-4">
             <img
               src={
@@ -65,19 +65,19 @@ export const AccountView: React.FC = () => {
                 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80'
               }
               alt={user?.full_name}
-              className="w-16 h-16 rounded-full object-cover border-2 border-teal shadow-xs"
+              className="w-16 h-16 rounded-full object-cover border-2 border-role-primary shadow-xs ring-4 ring-role-soft"
             />
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-textPrimary tracking-tight">{user?.full_name}</h2>
-                <span className="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-[#10233F] text-white">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-slate-900 text-white">
                   {user?.role}
                 </span>
               </div>
               <p className="text-xs text-textSecondary mt-0.5">
                 {user?.institutional_id} • {user?.email}
               </p>
-              <div className="mt-2 flex items-center gap-2 text-[11px] text-[#159B68] font-semibold">
+              <div className="mt-2 flex items-center gap-2 text-[11px] text-brandSuccess font-semibold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Enrolled Institutional Account</span>
               </div>
@@ -121,7 +121,7 @@ export const AccountView: React.FC = () => {
             <CardContent className="space-y-3.5 text-xs">
               <div className="flex items-center justify-between py-2 border-b border-slate-100">
                 <span className="text-textSecondary">Password Hashing</span>
-                <span className="font-mono text-xs font-semibold text-teal">Argon2id (m=64MB, t=3, p=4)</span>
+                <span className="font-mono text-xs font-semibold text-role-primary">Argon2id (m=64MB, t=3, p=4)</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b border-slate-100">
                 <span className="text-textSecondary">Session Token</span>
@@ -133,16 +133,16 @@ export const AccountView: React.FC = () => {
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-textSecondary">RBAC Role Authority</span>
-                <span className="font-mono text-xs font-semibold text-navy">Scoped by Backend Dependencies</span>
+                <span className="font-mono text-xs font-semibold text-slate-800">Scoped by Backend Dependencies</span>
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Biometric Consent & Data Retention Guarantee (PRD FR-17) */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 card-elevation space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm space-y-4">
           <div className="flex items-start gap-3">
-            <div className="p-2.5 rounded-lg bg-[#E6F6F5] text-teal flex-shrink-0">
+            <div className="p-2.5 rounded-xl bg-role-soft text-role-primary flex-shrink-0">
               <FileCheck2 className="w-5 h-5" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export const AccountView: React.FC = () => {
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-textSecondary">Consent Status:</span>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-brandSuccess border border-emerald-200">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-brandSuccess border border-emerald-200">
               Active Institutional Consent on File
             </span>
           </div>
@@ -183,7 +183,7 @@ export const AccountView: React.FC = () => {
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal font-mono"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl outline-none focus:border-role-primary font-mono"
                   placeholder="+919876543201"
                 />
               </div>
@@ -192,7 +192,7 @@ export const AccountView: React.FC = () => {
                   type="button"
                   onClick={handleSendOtp}
                   disabled={otpStatus === 'sending'}
-                  className="px-4 py-2 bg-teal text-white rounded-lg font-semibold hover:bg-teal-hover transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2.5 bg-role-primary text-white rounded-xl font-semibold hover:opacity-90 transition-all disabled:opacity-50 cursor-pointer whitespace-nowrap shadow-sm"
                 >
                   {otpStatus === 'sending' ? 'Sending Code...' : 'Send Verification Code'}
                 </button>
@@ -211,7 +211,7 @@ export const AccountView: React.FC = () => {
                     onChange={(e) => setOtpCode(e.target.value)}
                     placeholder="123456"
                     maxLength={6}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal font-mono tracking-widest text-center"
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl outline-none focus:border-role-primary font-mono tracking-widest text-center"
                   />
                 </div>
                 <div className="self-end">
@@ -219,7 +219,7 @@ export const AccountView: React.FC = () => {
                     type="button"
                     onClick={handleVerifyOtp}
                     disabled={!otpCode || otpStatus === 'verifying'}
-                    className="px-4 py-2 bg-[#10233F] text-white rounded-lg font-semibold hover:bg-[#183B5B] transition-colors disabled:opacity-50 cursor-pointer"
+                    className="px-4 py-2.5 bg-slate-900 text-white rounded-xl font-semibold hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
                   >
                     {otpStatus === 'verifying' ? 'Verifying...' : 'Submit OTP'}
                   </button>
@@ -229,12 +229,12 @@ export const AccountView: React.FC = () => {
 
             {otpMessage && (
               <div
-                className={`p-3 rounded-lg text-xs ${
+                className={`p-3.5 rounded-xl text-xs ${
                   otpStatus === 'verified'
                     ? 'bg-emerald-50 text-brandSuccess border border-emerald-200'
                     : otpStatus === 'error'
                     ? 'bg-red-50 text-brandDanger border border-red-200'
-                    : 'bg-blue-50 text-darkBlue border border-blue-200'
+                    : 'bg-role-soft text-role-primary border border-role-primary/20'
                 }`}
               >
                 {otpMessage}

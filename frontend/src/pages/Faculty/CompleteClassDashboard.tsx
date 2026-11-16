@@ -42,7 +42,7 @@ export const CompleteClassDashboard: React.FC = () => {
         setData(res);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load class session operational dashboard.');
         setLoading(false);
       });
@@ -78,19 +78,19 @@ export const CompleteClassDashboard: React.FC = () => {
       {/* Contextual Tabs */}
       <TabsNav tabs={classroomTabs} className="mb-6" />
 
-      {/* Top Session Banner */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation space-y-5">
+      {/* Top Session Banner (Emerald Studio theme) */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-5">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-100">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-[#10233F] text-white">
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-emerald-900 text-white">
                 {data.subject_code}
               </span>
-              <span className="text-xs font-semibold text-textSecondary">
+              <span className="text-xs font-semibold text-slate-600">
                 {data.section_name} • Room {data.room_number}
               </span>
               <StatusBadge status={data.session_status} />
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
                 MODE: {data.mode}
               </span>
             </div>
@@ -103,16 +103,16 @@ export const CompleteClassDashboard: React.FC = () => {
           <div className="flex items-center gap-2.5">
             <NavLink
               to="/faculty/attendance/session"
-              className="px-4 py-2.5 rounded-lg bg-teal text-white hover:bg-teal-hover text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-subtle cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
             >
               <UserCheck className="w-4 h-4" />
               <span>Manage Attendance</span>
             </NavLink>
             <NavLink
               to="/faculty/live-classroom"
-              className="px-4 py-2.5 rounded-lg bg-[#10233F] hover:bg-[#183B5B] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-subtle cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
             >
-              <Video className="w-4 h-4" />
+              <Video className="w-4 h-4 text-emerald-400" />
               <span>Live Camera</span>
             </NavLink>
           </div>
@@ -121,7 +121,7 @@ export const CompleteClassDashboard: React.FC = () => {
         {/* Operational Indicators */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-white border border-slate-200 text-textSecondary">
+            <div className="p-2 rounded-lg bg-white border border-slate-200 text-slate-600">
               <Clock className="w-4 h-4" />
             </div>
             <div>
@@ -134,14 +134,14 @@ export const CompleteClassDashboard: React.FC = () => {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-white border border-slate-200 text-teal">
+            <div className="p-2 rounded-lg bg-white border border-slate-200 text-emerald-600">
               <UserCheck className="w-4 h-4" />
             </div>
             <div>
               <span className="text-[10px] uppercase tracking-wider font-semibold text-textSecondary block">
                 Attendance Rate
               </span>
-              <div className="text-xs font-bold text-brandSuccess mt-0.5 font-mono">
+              <div className="text-xs font-bold text-emerald-700 mt-0.5 font-mono">
                 {data.attendance_summary?.attendance_rate}% Verified
               </div>
               <span className="text-[11px] text-textSecondary">
@@ -151,7 +151,7 @@ export const CompleteClassDashboard: React.FC = () => {
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-white border border-slate-200 text-[#183B5B]">
+            <div className="p-2 rounded-lg bg-white border border-slate-200 text-emerald-700">
               <Video className="w-4 h-4" />
             </div>
             <div>
@@ -161,7 +161,7 @@ export const CompleteClassDashboard: React.FC = () => {
               <div className="text-xs font-bold text-textPrimary mt-0.5 truncate max-w-[140px]">
                 {data.camera_status?.camera_name}
               </div>
-              <span className="text-[11px] text-brandSuccess font-mono">
+              <span className="text-[11px] text-emerald-700 font-mono font-medium">
                 ● {data.camera_status?.status} ({data.camera_status?.health})
               </span>
             </div>
@@ -191,30 +191,30 @@ export const CompleteClassDashboard: React.FC = () => {
       {/* Operational Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
         {/* Attendance Breakdown (1 col) */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="text-xs font-bold text-textPrimary uppercase tracking-wider">Attendance Breakdown</h3>
-              <span className="text-xs font-mono font-bold text-teal bg-[#E6F6F5] px-2 py-0.5 rounded">
+              <span className="text-xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
                 PIN: {data.attendance_summary?.verification_challenge || 'CS8492'}
               </span>
             </div>
 
             <div className="space-y-2.5">
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                <span className="text-textSecondary">Present (Verified Photo)</span>
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-emerald-50/50 border border-emerald-100">
+                <span className="text-emerald-900 font-medium">Present (Verified Photo)</span>
                 <span className="font-bold text-brandSuccess font-mono">{data.attendance_summary?.present_count}</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-textSecondary">Late Arrivals</span>
                 <span className="font-bold text-amber-700 font-mono">{data.attendance_summary?.late_count}</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <span className="text-textSecondary">Pending Review Queue</span>
-                <span className="font-bold text-[#183B5B] font-mono">{data.attendance_summary?.unverified_count}</span>
+                <span className="font-bold text-slate-800 font-mono">{data.attendance_summary?.unverified_count}</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
-                <span className="text-textSecondary">Absent</span>
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-red-50/50 border border-red-100">
+                <span className="text-red-900 font-medium">Absent</span>
                 <span className="font-bold text-brandDanger font-mono">{data.attendance_summary?.absent_count}</span>
               </div>
             </div>
@@ -222,37 +222,39 @@ export const CompleteClassDashboard: React.FC = () => {
 
           <NavLink
             to="/faculty/attendance/session"
-            className="mt-6 w-full py-2.5 bg-[#10233F] hover:bg-[#183B5B] text-white text-xs font-semibold rounded-lg text-center transition-colors block shadow-subtle cursor-pointer"
+            className="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl text-center transition-colors block shadow-sm cursor-pointer"
           >
             Review Attendance Queue
           </NavLink>
         </div>
 
         {/* Observable Activity Summary (1 col) */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="text-xs font-bold text-textPrimary uppercase tracking-wider">Class Telemetry</h3>
-              <span className="text-[10px] font-mono text-slate-500 uppercase">Events Only</span>
+              <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded uppercase font-semibold">
+                Events Only
+              </span>
             </div>
 
             <div className="space-y-2.5">
-              <div className="p-3 rounded-lg bg-slate-50 border border-slate-100">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                 <div className="text-[11px] text-textSecondary font-semibold">Total Observed Detections</div>
                 <div className="text-2xl font-bold text-textPrimary mt-0.5 font-mono">
                   {data.activity_summary?.total_events}
                 </div>
               </div>
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Smartphone className="w-3.5 h-3.5 text-[#183B5B]" />
+                  <Smartphone className="w-3.5 h-3.5 text-slate-600" />
                   <span className="text-textSecondary">Phone Handling Detections</span>
                 </div>
                 <span className="font-bold text-textPrimary font-mono">{data.activity_summary?.phone_events}</span>
               </div>
-              <div className="flex justify-between items-center text-xs p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+              <div className="flex justify-between items-center text-xs p-3 rounded-xl bg-slate-50 border border-slate-100">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-3.5 h-3.5 text-teal" />
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
                   <span className="text-textSecondary">Talking Motion Displacements</span>
                 </div>
                 <span className="font-bold text-textPrimary font-mono">{data.activity_summary?.talking_events}</span>
@@ -262,14 +264,14 @@ export const CompleteClassDashboard: React.FC = () => {
 
           <NavLink
             to="/faculty/activity/individual"
-            className="mt-6 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-textPrimary text-xs font-semibold rounded-lg text-center transition-colors border border-slate-200 block cursor-pointer"
+            className="mt-6 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl text-center transition-colors border border-slate-200 block cursor-pointer"
           >
             View Individual Table
           </NavLink>
         </div>
 
         {/* Class Log Timeline Preview (1 col) */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation flex flex-col justify-between">
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="text-xs font-bold text-textPrimary uppercase tracking-wider">Session Log Timeline</h3>
@@ -281,9 +283,9 @@ export const CompleteClassDashboard: React.FC = () => {
                 <div className="text-xs text-textSecondary py-6 text-center">No logs logged for this session.</div>
               ) : (
                 data.timeline_logs.map((log: any) => (
-                  <div key={log.id} className="text-xs border-l-2 border-teal pl-3 py-0.5 space-y-0.5">
+                  <div key={log.id} className="text-xs border-l-2 border-emerald-500 pl-3 py-0.5 space-y-0.5">
                     <div className="flex items-center justify-between text-[10px] text-textSecondary font-mono">
-                      <span className="font-bold text-[#10233F]">{log.event_type}</span>
+                      <span className="font-bold text-emerald-950">{log.event_type}</span>
                       <span>{log.timestamp}</span>
                     </div>
                     <p className="text-[11px] text-textPrimary leading-snug">{log.description}</p>
@@ -295,7 +297,7 @@ export const CompleteClassDashboard: React.FC = () => {
 
           <NavLink
             to={`/faculty/class/${id}/logs`}
-            className="mt-4 text-xs text-teal hover:underline font-semibold block text-center cursor-pointer"
+            className="mt-4 text-xs text-emerald-700 hover:underline font-semibold block text-center cursor-pointer"
           >
             Open Full Chronological Log
           </NavLink>

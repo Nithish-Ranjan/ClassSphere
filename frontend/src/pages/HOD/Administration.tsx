@@ -128,20 +128,20 @@ export const AdministrationView: React.FC = () => {
       {isImport ? (
         <div className="space-y-6">
           {/* Institutional Data Authenticity Guarantee Banner */}
-          <div className="bg-navy text-white p-6 rounded-xl border border-navy-light shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-xl bg-teal text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className="bg-gradient-to-r from-[#2E0854] via-purple-900 to-[#1E1B4B] text-white p-6 rounded-2xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm text-purple-200 flex items-center justify-center flex-shrink-0 border border-white/20">
                 <Database className="w-6 h-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                     DATA CLASSIFICATION: REAL
                   </span>
-                  <span className="text-xs text-slate-300 font-mono">Institutional SIS/ERP Ingestion</span>
+                  <span className="text-xs text-purple-200 font-mono">Institutional SIS/ERP Ingestion</span>
                 </div>
                 <h3 className="text-lg font-bold text-white mt-1">Authorized Institutional Records Importer</h3>
-                <p className="text-xs text-slate-300 mt-0.5">
+                <p className="text-xs text-purple-100/90 mt-0.5 max-w-2xl leading-relaxed">
                   Import verified student, faculty, and curriculum records. Automatically checks duplicates, enforces schemas, and records an immutable audit log.
                 </p>
               </div>
@@ -149,7 +149,7 @@ export const AdministrationView: React.FC = () => {
           </div>
 
           {/* Import Setup & Execution Form */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
               <div>
                 <h4 className="text-base font-bold text-textPrimary">Select Ingestion Entity Type</h4>
@@ -164,10 +164,10 @@ export const AdministrationView: React.FC = () => {
                       setImportEntity(entity);
                       setImportReport(null);
                     }}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       importEntity === entity
-                        ? 'bg-[#10233F] text-white shadow-xs'
-                        : 'bg-[#F7F9FC] text-slate-700 hover:bg-slate-200 border border-slate-200'
+                        ? 'bg-purple-900 text-white shadow-sm ring-2 ring-purple-900/20'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                     }`}
                   >
                     {entity}
@@ -185,7 +185,7 @@ export const AdministrationView: React.FC = () => {
                   type="button"
                   onClick={handleDownloadTemplate}
                   disabled={templateLoading}
-                  className="text-xs font-semibold text-teal hover:text-teal-hover flex items-center gap-1.5 cursor-pointer"
+                  className="text-xs font-semibold text-purple-700 hover:text-purple-900 flex items-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-4 h-4" />
                   <span>{templateLoading ? 'Loading Template...' : `Load Official ${importEntity} Sample Template`}</span>
@@ -198,7 +198,7 @@ export const AdministrationView: React.FC = () => {
                 placeholder={`Paste standard CSV rows here, e.g.:\nroll_number,full_name,email,section_name,batch_year\nCS24B020,Devansh Nair,devansh.nair@classsphere.edu,Section A,2026-2027`}
                 required
                 rows={7}
-                className="w-full px-4 py-3 text-xs font-mono border border-slate-300 rounded-xl bg-[#F7F9FC] outline-none focus:border-teal focus:bg-white text-textPrimary leading-relaxed"
+                className="w-full px-4 py-3 text-xs font-mono border border-slate-300 rounded-xl bg-slate-50/50 outline-none focus:border-purple-700 focus:bg-white text-textPrimary leading-relaxed"
               />
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
@@ -207,7 +207,7 @@ export const AdministrationView: React.FC = () => {
                     type="checkbox"
                     checked={dryRun}
                     onChange={(e) => setDryRun(e.target.checked)}
-                    className="w-4 h-4 rounded text-teal focus:ring-teal border-slate-300"
+                    className="w-4 h-4 rounded text-purple-700 focus:ring-purple-600 border-slate-300"
                   />
                   <span className="text-xs font-semibold text-textPrimary">
                     Dry-Run Validation Only (Inspect schema & duplicates without committing to database)
@@ -221,16 +221,16 @@ export const AdministrationView: React.FC = () => {
                       setCsvContent('');
                       setImportReport(null);
                     }}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-textSecondary rounded-lg text-xs font-medium cursor-pointer"
+                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer"
                   >
                     Clear Input
                   </button>
                   <button
                     type="submit"
                     disabled={importLoading}
-                    className="px-5 py-2 bg-teal hover:bg-teal-hover text-white rounded-lg text-xs font-bold transition-all shadow-subtle flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2.5 bg-purple-900 hover:bg-purple-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
-                    <UploadCloud className="w-4 h-4" />
+                    <UploadCloud className="w-4 h-4 text-purple-200" />
                     <span>{importLoading ? 'Validating & Ingesting...' : dryRun ? 'Execute Dry-Run Check' : `Import ${importEntity} into Database`}</span>
                   </button>
                 </div>
@@ -240,11 +240,11 @@ export const AdministrationView: React.FC = () => {
 
           {/* Import Results Report Banner & Detail Table */}
           {importReport && (
-            <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation space-y-6">
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                       importReport.error_count > 0 ? 'bg-red-50 text-brandDanger border border-red-200' : 'bg-emerald-50 text-brandSuccess border border-emerald-200'
                     }`}>
                       {importReport.dry_run ? 'DRY-RUN RESULT' : 'DATABASE COMMIT COMPLETE'}
@@ -261,7 +261,7 @@ export const AdministrationView: React.FC = () => {
 
               {/* Metrics Breakdown */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-[#F7F9FC] border border-slate-200">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-[11px] text-textSecondary uppercase font-semibold block">Total Processed</span>
                   <span className="text-2xl font-bold font-mono text-textPrimary mt-1 block">{importReport.total_rows_processed}</span>
                 </div>
@@ -286,9 +286,9 @@ export const AdministrationView: React.FC = () => {
                   <h5 className="text-xs font-bold text-textPrimary uppercase tracking-wider">
                     Imported Records Preview ({importReport.imported_preview.length})
                   </h5>
-                  <div className="overflow-x-auto border border-slate-200 rounded-lg">
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-[#F7F9FC] text-textSecondary font-semibold uppercase text-[10px] border-b border-slate-200">
+                      <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] border-b border-slate-200">
                         <tr>
                           <th className="py-2.5 px-3">Identifier</th>
                           <th className="py-2.5 px-3">Name</th>
@@ -351,8 +351,8 @@ export const AdministrationView: React.FC = () => {
         </div>
       ) : !isStudents ? (
         /* VIEW 2: SECURITY AUDIT LOGS */
-        <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden space-y-4">
-          <div className="p-5 border-b border-mutedBlue flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden space-y-4">
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/60 to-purple-50/20">
             <div>
               <h3 className="font-bold text-textPrimary text-base">Security & Administrative Audit Trail</h3>
               <p className="text-xs text-textSecondary mt-0.5">
@@ -365,7 +365,7 @@ export const AdministrationView: React.FC = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Filter logs by action, user..."
-                className="w-full px-3 py-2 text-xs border border-mutedBlue rounded-lg bg-surface outline-none focus:border-teal"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white outline-none focus:border-purple-700"
               />
             </div>
           </div>
@@ -381,7 +381,7 @@ export const AdministrationView: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-4">Action</th>
                     <th className="py-3 px-4">Resource</th>
@@ -391,12 +391,12 @@ export const AdministrationView: React.FC = () => {
                     <th className="py-3 px-4">Timestamp</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-mutedBlue text-textPrimary font-mono">
+                <tbody className="divide-y divide-slate-100 text-textPrimary font-mono">
                   {filteredLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-surface/50 transition-colors">
-                      <td className="py-3 px-4 font-bold text-navy">{log.action}</td>
+                    <tr key={log.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3 px-4 font-bold text-purple-950">{log.action}</td>
                       <td className="py-3 px-4">
-                        <span className="px-1.5 py-0.5 rounded bg-surface border border-mutedBlue text-[10px]">
+                        <span className="px-2 py-0.5 rounded bg-purple-50 border border-purple-200/60 text-purple-900 text-[10px] font-semibold">
                           {log.resource}
                         </span>
                       </td>
@@ -415,8 +415,8 @@ export const AdministrationView: React.FC = () => {
         </div>
       ) : (
         /* VIEW 3: STUDENT DIRECTORY */
-        <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden">
-          <div className="p-5 border-b border-mutedBlue flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/60 to-purple-50/20">
             <div>
               <h3 className="font-bold text-textPrimary text-base">CSE Enrolled Students Directory</h3>
               <p className="text-xs text-textSecondary mt-0.5">Authorized enrolled student profiles from institutional source</p>
@@ -427,7 +427,7 @@ export const AdministrationView: React.FC = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search students by name, roll, section..."
-                className="w-full px-3 py-2 text-xs border border-mutedBlue rounded-lg bg-surface outline-none focus:border-teal"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white outline-none focus:border-purple-700"
               />
             </div>
           </div>
@@ -443,7 +443,7 @@ export const AdministrationView: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-4">Student</th>
                     <th className="py-3 px-4">Roll Number</th>
@@ -453,16 +453,16 @@ export const AdministrationView: React.FC = () => {
                     <th className="py-3 px-4">Account Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-mutedBlue text-textPrimary">
+                <tbody className="divide-y divide-slate-100 text-textPrimary">
                   {filteredStudents.map((s) => (
-                    <tr key={s.id} className="hover:bg-surface/50 transition-colors">
+                    <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 font-semibold text-textPrimary">
                         {s.name}
                         <span className="block text-[11px] text-textSecondary font-normal">{s.email}</span>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-textSecondary">{s.roll_number}</td>
-                      <td className="py-3.5 px-4">{s.section}</td>
-                      <td className="py-3.5 px-4 font-mono">{s.batch_year}</td>
+                      <td className="py-3.5 px-4 font-mono text-purple-900 font-semibold">{s.roll_number}</td>
+                      <td className="py-3.5 px-4 text-slate-700">{s.section}</td>
+                      <td className="py-3.5 px-4 font-mono text-slate-600">{s.batch_year}</td>
                       <td className="py-3.5 px-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
                           s.data_source === 'REAL'

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, ArrowRight, AlertTriangle, CheckCircle2, TrendingUp, Info, CheckCircle, Calendar } from 'lucide-react';
+import { Calculator, ArrowRight, AlertTriangle, CheckCircle2, TrendingUp, Info, CheckCircle, Calendar, Sparkles } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { studentApi } from '../../services/api';
 import { SubjectAttendance, WhatIfResponse } from '../../types';
@@ -30,7 +30,7 @@ export const WhatIfSimulatorView: React.FC = () => {
         }
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load courses for simulation.');
         setLoading(false);
       });
@@ -75,30 +75,32 @@ export const WhatIfSimulatorView: React.FC = () => {
       {/* Contextual Tabs */}
       <TabsNav tabs={attendanceTabs} className="mb-6" />
 
-      {/* Advisory Notice */}
-      <div className="bg-[#EFF6FF] border border-[#BFDBFE] text-[#183B5B] p-4 sm:p-5 rounded-xl flex items-start gap-3.5 text-xs leading-relaxed">
-        <Info className="w-5 h-5 flex-shrink-0 text-teal mt-0.5" />
+      {/* Advisory Notice (Aurora theme) */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50/60 border border-aurora-cobalt/20 text-slate-800 p-5 rounded-2xl flex items-start gap-3.5 text-xs leading-relaxed shadow-xs">
+        <div className="p-2 rounded-xl bg-aurora-cobalt/10 text-aurora-cobalt flex-shrink-0 mt-0.5">
+          <Sparkles className="w-4 h-4" />
+        </div>
         <div>
-          <span className="font-bold text-[#10233F]">Predictive Modeling Notice:</span> The What If Simulator calculates prospective mathematical projections using verified PostgreSQL attendance records. Executing simulation models will never modify, overwrite, or tamper with your official academic transcripts.
+          <span className="font-bold text-aurora-cobalt">Predictive Mathematical Simulator:</span> Compute prospective trajectories before deciding to miss or make up upcoming sessions. Simulations run purely in memory and will <span className="font-semibold text-slate-900">never modify, overwrite, or compromise</span> your official institutional attendance transcripts.
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
         {/* Input Parameters (5 cols) */}
-        <div className="lg:col-span-5 bg-white p-6 rounded-xl border border-slate-200 card-elevation space-y-5">
-          <div className="flex items-center gap-2 text-teal font-semibold text-xs uppercase tracking-wider">
+        <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm space-y-5">
+          <div className="flex items-center gap-2 text-aurora-cobalt font-semibold text-xs uppercase tracking-wider">
             <Calculator className="w-4 h-4" />
             <span>Simulation Parameters</span>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-textPrimary uppercase tracking-wider mb-1.5">
-              Select Subject
+              Select Enrolled Subject
             </label>
             <select
               value={selectedSubjectId || ''}
               onChange={(e) => setSelectedSubjectId(Number(e.target.value))}
-              className="w-full px-3 py-2.5 text-xs rounded-lg border border-slate-300 bg-white outline-none focus:border-teal font-medium"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white outline-none focus:border-aurora-cobalt focus:ring-2 focus:ring-aurora-cobalt/10 font-medium"
             >
               {subjects.map((s) => (
                 <option key={s.subject_id} value={s.subject_id}>
@@ -113,20 +115,20 @@ export const WhatIfSimulatorView: React.FC = () => {
             <label className="block text-xs font-semibold text-textPrimary uppercase tracking-wider mb-2">
               Quick Scenarios
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   setClassesPresent(0);
                   setClassesAbsent(1);
                 }}
-                className={`p-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-xs font-medium text-left transition-all cursor-pointer ${
                   classesPresent === 0 && classesAbsent === 1
-                    ? 'border-brandDanger bg-red-50 text-brandDanger font-semibold'
-                    : 'border-slate-200 bg-slate-50 hover:bg-white text-textPrimary'
+                    ? 'border-brandDanger bg-red-50 text-brandDanger font-semibold ring-2 ring-red-200'
+                    : 'border-slate-200 bg-slate-50/80 hover:bg-white text-textPrimary'
                 }`}
               >
-                🔴 Miss Next Class
+                <span className="font-semibold block">🔴 Miss Next Class</span>
                 <span className="block text-[10px] text-textSecondary font-normal mt-0.5 font-mono">
                   Absent: +1, Present: +0
                 </span>
@@ -137,13 +139,13 @@ export const WhatIfSimulatorView: React.FC = () => {
                   setClassesPresent(1);
                   setClassesAbsent(0);
                 }}
-                className={`p-2.5 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer ${
+                className={`p-3 rounded-xl border text-xs font-medium text-left transition-all cursor-pointer ${
                   classesPresent === 1 && classesAbsent === 0
-                    ? 'border-teal bg-[#E6F6F5] text-teal font-semibold'
-                    : 'border-slate-200 bg-slate-50 hover:bg-white text-textPrimary'
+                    ? 'border-aurora-cobalt bg-aurora-sky/15 text-aurora-cobalt font-semibold ring-2 ring-aurora-cobalt/20'
+                    : 'border-slate-200 bg-slate-50/80 hover:bg-white text-textPrimary'
                 }`}
               >
-                🟢 Attend Next Class
+                <span className="font-semibold block">🟢 Attend Next Class</span>
                 <span className="block text-[10px] text-textSecondary font-normal mt-0.5 font-mono">
                   Absent: +0, Present: +1
                 </span>
@@ -154,9 +156,9 @@ export const WhatIfSimulatorView: React.FC = () => {
           {/* Custom Sliders */}
           <div className="space-y-4 pt-4 border-t border-slate-100">
             <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
+              <div className="flex justify-between text-xs font-semibold mb-1.5">
                 <span className="text-brandSuccess">Simulate Classes Attended</span>
-                <span className="font-mono text-textPrimary">+{classesPresent} classes</span>
+                <span className="font-mono text-aurora-cobalt font-bold">+{classesPresent} classes</span>
               </div>
               <input
                 type="range"
@@ -164,14 +166,14 @@ export const WhatIfSimulatorView: React.FC = () => {
                 max="10"
                 value={classesPresent}
                 onChange={(e) => setClassesPresent(Number(e.target.value))}
-                className="w-full accent-teal cursor-pointer"
+                className="w-full accent-aurora-cobalt cursor-pointer"
               />
             </div>
 
             <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
+              <div className="flex justify-between text-xs font-semibold mb-1.5">
                 <span className="text-brandDanger">Simulate Classes Missed</span>
-                <span className="font-mono text-textPrimary">+{classesAbsent} classes</span>
+                <span className="font-mono text-brandDanger font-bold">+{classesAbsent} classes</span>
               </div>
               <input
                 type="range"
@@ -186,11 +188,11 @@ export const WhatIfSimulatorView: React.FC = () => {
         </div>
 
         {/* Projection Results (7 cols) */}
-        <div className="lg:col-span-7 bg-white p-6 rounded-xl border border-slate-200 card-elevation flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
-                <span className="text-[11px] font-mono text-textSecondary uppercase tracking-wider">
+                <span className="text-[11px] font-mono text-aurora-cobalt uppercase tracking-wider font-semibold">
                   Simulation Outcome
                 </span>
                 <h3 className="text-lg font-bold text-textPrimary mt-0.5">{result?.subject_name}</h3>
@@ -212,7 +214,7 @@ export const WhatIfSimulatorView: React.FC = () => {
               <div className="mt-6 space-y-6">
                 {/* Comparison metric blocks */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
                     <span className="text-xs text-textSecondary font-medium">Current Attendance</span>
                     <div className="text-3xl font-bold text-textPrimary mt-1 font-mono">
                       {result.current_percentage}%
@@ -222,21 +224,21 @@ export const WhatIfSimulatorView: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-[#E6F6F5] border border-teal/30 text-center">
-                    <span className="text-xs text-teal font-semibold">Projected Attendance</span>
-                    <div className="text-3xl font-bold text-teal mt-1 font-mono">
+                  <div className="p-4 rounded-xl bg-blue-50/60 border border-aurora-cobalt/30 text-center">
+                    <span className="text-xs text-aurora-cobalt font-semibold">Projected Attendance</span>
+                    <div className="text-3xl font-bold text-aurora-cobalt mt-1 font-mono">
                       {result.projected_percentage}%
                     </div>
-                    <span className="text-[11px] text-teal mt-0.5 block font-mono">
+                    <span className="text-[11px] text-aurora-indigo mt-0.5 block font-mono font-medium">
                       {result.simulated_attended} of {result.simulated_conducted} simulated
                     </span>
                   </div>
                 </div>
 
                 {/* Projected Delta indicator */}
-                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/70 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-teal" />
+                    <TrendingUp className="w-4 h-4 text-aurora-cobalt" />
                     <span className="text-xs font-semibold text-textPrimary">Projected Delta</span>
                   </div>
                   <span
@@ -249,7 +251,7 @@ export const WhatIfSimulatorView: React.FC = () => {
                 </div>
 
                 {/* Audit & Regulatory Note */}
-                <div className="text-xs text-textSecondary p-3.5 rounded-lg bg-slate-50 border border-slate-200 leading-relaxed">
+                <div className="text-xs text-textSecondary p-4 rounded-xl bg-slate-50 border border-slate-200 leading-relaxed">
                   <span className="font-semibold text-textPrimary">Institutional Note: </span>
                   {result.simulation_note}
                 </div>

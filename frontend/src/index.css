@@ -3,12 +3,123 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Global Typography & Neutral Foundations */
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace;
+
+    /* Base Default Theme (Fallback / Student Aurora) */
+    --role-primary: #1D4ED8;
+    --role-primary-strong: #1E40AF;
+    --role-primary-light: #3B82F6;
+    --role-secondary: #4F46E5;
+    --role-soft: #EFF6FF;
+    --role-soft-border: #BFDBFE;
+    --role-accent: #0284C7;
+    --role-surface: #FFFFFF;
+    --role-background: #F8FAFC;
+    --role-sidebar: #0F172A;
+    --role-sidebar-border: #1E293B;
+    --role-sidebar-active: #1D4ED8;
+    --role-sidebar-hover: #1E293B;
+    --role-sidebar-text: #F8FAFC;
+    --role-sidebar-text-muted: #94A3B8;
+    --role-text: #0F172A;
+    --role-text-muted: #64748B;
+    --role-border: #E2E8F0;
+    --role-ring: rgba(29, 78, 216, 0.25);
+    --role-gradient-hero: linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #6366F1 100%);
+    --role-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  }
+
+  /* STUDENT THEME — AURORA BLUE
+     Primary: Cobalt Blue. Supporting: Indigo, Sky Blue, Lavender, Soft Periwinkle.
+     Mood: Welcoming, energetic, personal, clear. */
+  [data-theme="STUDENT"] {
+    --role-primary: #1D4ED8;
+    --role-primary-strong: #1E3A8A;
+    --role-primary-light: #3B82F6;
+    --role-secondary: #4338CA;
+    --role-soft: #EEF2FF;
+    --role-soft-border: #C7D2FE;
+    --role-accent: #0284C7;
+    --role-surface: #FFFFFF;
+    --role-background: #F4F7FC;
+    --role-sidebar: #0B1930;
+    --role-sidebar-border: #162C4E;
+    --role-sidebar-active: #2563EB;
+    --role-sidebar-hover: #132644;
+    --role-sidebar-text: #F8FAFC;
+    --role-sidebar-text-muted: #94A3B8;
+    --role-text: #0F172A;
+    --role-text-muted: #64748B;
+    --role-border: #E2E8F0;
+    --role-ring: rgba(37, 99, 235, 0.25);
+    --role-gradient-hero: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 40%, #4338CA 80%, #6366F1 100%);
+    --role-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #F5F8FF 100%);
+  }
+
+  /* FACULTY THEME — EMERALD STUDIO
+     Primary: Emerald Green. Supporting: Teal, Mint, Deep Charcoal, Soft Green.
+     Mood: Operational, focused, live, action-oriented. */
+  [data-theme="FACULTY"] {
+    --role-primary: #059669;
+    --role-primary-strong: #047857;
+    --role-primary-light: #10B981;
+    --role-secondary: #0D9488;
+    --role-soft: #ECFDF5;
+    --role-soft-border: #A7F3D0;
+    --role-accent: #059669;
+    --role-surface: #FFFFFF;
+    --role-background: #F4F8F6;
+    --role-sidebar: #0C1E19;
+    --role-sidebar-border: #13332A;
+    --role-sidebar-active: #059669;
+    --role-sidebar-hover: #142E25;
+    --role-sidebar-text: #F8FAFC;
+    --role-sidebar-text-muted: #86A79C;
+    --role-text: #0F172A;
+    --role-text-muted: #576861;
+    --role-border: #E2E8F0;
+    --role-ring: rgba(5, 150, 105, 0.25);
+    --role-gradient-hero: linear-gradient(135deg, #064E3B 0%, #047857 40%, #0D9488 80%, #10B981 100%);
+    --role-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #F4FAF7 100%);
+  }
+
+  /* HOD THEME — EXECUTIVE PLUM
+     Primary: Deep Violet / Plum. Supporting: Lavender, Purple, Midnight Navy, Soft Lilac.
+     Mood: Authoritative, analytical, sophisticated. */
+  [data-theme="HOD"] {
+    --role-primary: #6B21A8;
+    --role-primary-strong: #581C87;
+    --role-primary-light: #7E22CE;
+    --role-secondary: #4C1D95;
+    --role-soft: #FAF5FF;
+    --role-soft-border: #E9D5FF;
+    --role-accent: #9333EA;
+    --role-surface: #FFFFFF;
+    --role-background: #F7F5FA;
+    --role-sidebar: #130B24;
+    --role-sidebar-border: #22143D;
+    --role-sidebar-active: #7E22CE;
+    --role-sidebar-hover: #1E1238;
+    --role-sidebar-text: #F8FAFC;
+    --role-sidebar-text-muted: #A89CB8;
+    --role-text: #110E1B;
+    --role-text-muted: #675E75;
+    --role-border: #E5E0EB;
+    --role-ring: rgba(107, 33, 168, 0.25);
+    --role-gradient-hero: linear-gradient(135deg, #3B0764 0%, #581C87 40%, #4C1D95 80%, #7E22CE 100%);
+    --role-gradient-card: linear-gradient(180deg, #FFFFFF 0%, #FAF7FC 100%);
+  }
+
   body {
-    background-color: #F7F9FC;
-    color: #172B43;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--role-background);
+    color: var(--role-text);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
   }
 
   input, select, textarea, button {
@@ -16,30 +127,30 @@
   }
 }
 
-/* Custom restrained institutional scrollbar */
+/* Scrollbar System */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F1F4F8;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #CBD5E1;
-  border-radius: 3px;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
 
-/* Institutional card and elevated container utilities */
+/* Card & Surface Elevation Utilities */
 .card-elevation {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px 0 rgba(16, 35, 63, 0.04), 0 1px 2px -1px rgba(16, 35, 63, 0.03);
+  background: var(--role-surface);
+  border: 1px solid var(--role-border);
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
 }
 
 .card-elevation-hover {
@@ -47,11 +158,33 @@
 }
 
 .card-elevation-hover:hover {
-  box-shadow: 0 4px 6px -1px rgba(16, 35, 63, 0.08), 0 2px 4px -2px rgba(16, 35, 63, 0.04);
-  border-color: #CBD5E1;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  transform: translateY(-1px);
 }
 
-/* Accessible focus outline */
+.role-hero-gradient {
+  background: var(--role-gradient-hero);
+}
+
+.role-card-gradient {
+  background: var(--role-gradient-card);
+}
+
+/* Accessible focus ring system */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-teal/30 focus:border-teal;
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--role-ring);
+  border-color: var(--role-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

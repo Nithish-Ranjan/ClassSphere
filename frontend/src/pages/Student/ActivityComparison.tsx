@@ -33,7 +33,7 @@ export const ActivityComparisonView: React.FC = () => {
         setData(res);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to compute activity comparison telemetry.');
         setLoading(false);
       });
@@ -67,15 +67,15 @@ export const ActivityComparisonView: React.FC = () => {
       <TabsNav tabs={tabs} className="mb-6" />
 
       {/* Mode & Period Banner */}
-      <div className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 card-elevation flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <span className="text-[11px] font-mono text-teal font-bold uppercase tracking-wider">{data.period_label}</span>
+          <span className="text-[11px] font-mono text-role-primary font-bold uppercase tracking-wider">{data.period_label}</span>
           <h2 className="text-base sm:text-lg font-bold text-textPrimary mt-0.5">Telemetry Period Comparison</h2>
-          <p className="text-xs text-textSecondary mt-0.5 leading-relaxed">
-            Comparative counts for verified observable classroom events. Objectively computed from stored database records.
+          <p className="text-xs text-textSecondary mt-0.5 leading-relaxed max-w-xl">
+            Comparative counts for verified observable classroom events. Objectively computed from stored database records without subjective interpretation.
           </p>
         </div>
-        <span className="text-[10px] font-mono px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
+        <span className="text-[10px] font-mono px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-semibold self-start sm:self-auto">
           MODE: SIMULATED BENCHMARK DATA
         </span>
       </div>
@@ -83,15 +83,15 @@ export const ActivityComparisonView: React.FC = () => {
       {/* Main Comparisons Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         {/* Phone Usage Comparison */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 card-elevation">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-[#EFF6FF] text-[#183B5B] border border-[#BFDBFE]/50">
+              <div className="p-2.5 rounded-xl bg-blue-50 text-aurora-cobalt border border-blue-100">
                 <Smartphone className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-bold text-sm text-textPrimary">Phone Handling Detections</h3>
-                <span className="text-[11px] text-textSecondary">Observable device handling</span>
+                <span className="text-[11px] text-textSecondary">Observable handheld interactions</span>
               </div>
             </div>
             <div
@@ -109,29 +109,29 @@ export const ActivityComparisonView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
               <span className="text-xs text-textSecondary">Previous Period</span>
               <div className="text-3xl font-bold text-textPrimary mt-1 font-mono">{data.previous_phone_events}</div>
               <span className="text-[10px] text-textSecondary">Baseline period</span>
             </div>
-            <div className="p-4 rounded-xl bg-[#E6F6F5] border border-teal/30 text-center">
-              <span className="text-xs text-teal font-semibold">Current Period</span>
-              <div className="text-3xl font-bold text-teal mt-1 font-mono">{data.current_phone_events}</div>
-              <span className="text-[10px] text-teal">Recent active period</span>
+            <div className="p-4 rounded-xl bg-blue-50/60 border border-aurora-cobalt/30 text-center">
+              <span className="text-xs text-aurora-cobalt font-semibold">Current Period</span>
+              <div className="text-3xl font-bold text-aurora-cobalt mt-1 font-mono">{data.current_phone_events}</div>
+              <span className="text-[10px] text-aurora-indigo font-medium">Recent active period</span>
             </div>
           </div>
 
           <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-textSecondary flex justify-between items-center">
-            <span>Observable reduction in device handling</span>
+            <span>Observable trend across lecture sessions</span>
             <span className="font-semibold text-brandSuccess">Favorable Trajectory</span>
           </div>
         </div>
 
         {/* Talking Events Comparison */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 card-elevation">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-[#E6F6F5] text-teal border border-teal/20">
+              <div className="p-2.5 rounded-xl bg-indigo-50 text-aurora-indigo border border-indigo-100">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <div>
@@ -146,20 +146,20 @@ export const ActivityComparisonView: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
               <span className="text-xs text-textSecondary">Previous Period</span>
               <div className="text-3xl font-bold text-textPrimary mt-1 font-mono">{data.previous_talking_events}</div>
               <span className="text-[10px] text-textSecondary">Baseline period</span>
             </div>
-            <div className="p-4 rounded-xl bg-[#E6F6F5] border border-teal/30 text-center">
-              <span className="text-xs text-teal font-semibold">Current Period</span>
-              <div className="text-3xl font-bold text-teal mt-1 font-mono">{data.current_talking_events}</div>
-              <span className="text-[10px] text-teal">Recent active period</span>
+            <div className="p-4 rounded-xl bg-indigo-50/60 border border-aurora-indigo/30 text-center">
+              <span className="text-xs text-aurora-indigo font-semibold">Current Period</span>
+              <div className="text-3xl font-bold text-aurora-indigo mt-1 font-mono">{data.current_talking_events}</div>
+              <span className="text-[10px] text-aurora-indigo font-medium">Recent active period</span>
             </div>
           </div>
 
           <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-textSecondary flex justify-between items-center">
-            <span>Optical mouth displacement estimates</span>
+            <span>Conversational optical flow events</span>
             <span className="font-semibold text-slate-700">Stable Activity</span>
           </div>
         </div>

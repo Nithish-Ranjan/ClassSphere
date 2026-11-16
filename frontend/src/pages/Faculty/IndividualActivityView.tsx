@@ -38,27 +38,27 @@ export const IndividualActivityView: React.FC = () => {
     <AppShell pageTitle="Individual Student Activity Table" pageSubtitle="Observable telemetry events for assigned section students">
       <TabsNav tabs={intelligenceTabs} className="mb-6" />
 
-      {/* Privacy Pledge Banner */}
-      <div className="bg-navy text-white p-5 rounded-xl border border-navy-light shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center text-white flex-shrink-0">
-            <Shield className="w-5 h-5" />
+      {/* Privacy Pledge Banner (Emerald Studio theme) */}
+      <div className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 text-white p-6 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-white flex-shrink-0 border border-white/20">
+            <Shield className="w-6 h-6 text-emerald-200" />
           </div>
           <div>
-            <div className="text-sm font-bold tracking-tight">Privacy Statement: Events Only. No Scores. No Labels.</div>
-            <p className="text-xs text-mutedBlue-dark mt-0.5">
-              ClassSphere provides observable event counts only. We do not produce behavioural grades, personality ratings, or disciplinary conclusions.
+            <div className="text-base font-bold tracking-tight">Institutional Privacy Charter: Events Only. No Scores. No Labels.</div>
+            <p className="text-xs text-emerald-100/90 mt-1 leading-relaxed max-w-2xl">
+              ClassSphere captures observable physical event counts only. We strictly refrain from producing behavioural grades, personality ratings, or automated disciplinary conclusions.
             </p>
           </div>
         </div>
-        <span className="text-[10px] font-mono px-3 py-1 rounded bg-white/10 text-teal-light border border-white/10">
+        <span className="text-[11px] font-mono px-3 py-1.5 rounded-xl bg-white/10 text-emerald-100 border border-white/20 font-semibold self-start sm:self-auto">
           Section A • Spring 2026
         </span>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden">
-        <div className="p-5 border-b border-mutedBlue flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/60 to-emerald-50/20">
           <div>
             <h3 className="font-bold text-textPrimary text-base">Student Telemetry Summary</h3>
             <p className="text-xs text-textSecondary mt-0.5">Aggregated counts across active session cameras</p>
@@ -70,7 +70,7 @@ export const IndividualActivityView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name or roll number..."
-              className="w-full px-3 py-2 text-xs border border-mutedBlue rounded-lg bg-surface outline-none focus:border-teal"
+              className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10"
             />
           </div>
         </div>
@@ -90,7 +90,7 @@ export const IndividualActivityView: React.FC = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+              <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Student Name</th>
                   <th className="py-3 px-4">Roll Number</th>
@@ -100,25 +100,25 @@ export const IndividualActivityView: React.FC = () => {
                   <th className="py-3 px-4">Review Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-mutedBlue text-textPrimary">
+              <tbody className="divide-y divide-slate-100 text-textPrimary">
                 {filtered.map((s) => (
-                  <tr key={s.student_id} className="hover:bg-surface/50 transition-colors">
-                    <td className="py-3 px-4 font-semibold text-textPrimary">{s.student_name}</td>
-                    <td className="py-3 px-4 font-mono text-textSecondary">{s.roll_number}</td>
-                    <td className="py-3 px-4">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-textPrimary">
-                        <Smartphone className="w-3.5 h-3.5 text-brandWarning" />
+                  <tr key={s.student_id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-3.5 px-4 font-semibold text-textPrimary">{s.student_name}</td>
+                    <td className="py-3.5 px-4 font-mono text-slate-500">{s.roll_number}</td>
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1.5 font-bold text-slate-800">
+                        <Smartphone className="w-3.5 h-3.5 text-amber-600" />
                         <span>{s.phone_event_count}</span>
                       </span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className="inline-flex items-center gap-1.5 font-bold text-textPrimary">
-                        <MessageSquare className="w-3.5 h-3.5 text-teal" />
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1.5 font-bold text-emerald-800">
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
                         <span>{s.talking_event_count}</span>
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-bold text-navy">{s.total_recorded_events}</td>
-                    <td className="py-3 px-4">
+                    <td className="py-3.5 px-4 font-bold text-emerald-950 font-mono">{s.total_recorded_events}</td>
+                    <td className="py-3.5 px-4">
                       <StatusBadge status={s.review_status} />
                     </td>
                   </tr>

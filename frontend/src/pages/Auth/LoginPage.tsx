@@ -15,8 +15,13 @@ import {
   Radio,
   FileCheck2,
   Camera,
+  KeyRound,
+  ChevronDown,
+  Sparkles,
+  Info,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { Button, Input, Modal } from '../../components/ui';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,20 +37,23 @@ export const LoginPage: React.FC = () => {
   // Modals
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [showActivationModal, setShowActivationModal] = useState(false);
+  const [showEvaluatorModal, setShowEvaluatorModal] = useState(false);
   const [activationId, setActivationId] = useState('');
   const [activationStatus, setActivationStatus] = useState<string | null>(null);
 
-  // Phone OTP state for 2FA / verification
+  // Phone OTP state for 2FA / verification (Twilio Verify protocol)
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
-  const [otpStatus, setOtpStatus] = useState<'idle' | 'sending' | 'sent' | 'verifying' | 'verified' | 'error'>('idle');
+  const [otpStatus, setOtpStatus] = useState<
+    'idle' | 'sending' | 'sent' | 'verifying' | 'verified' | 'error'
+  >('idle');
   const [otpMessage, setOtpMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier.trim() || !password) {
-      setErrorMessage('Please enter both your institutional identifier and password.');
+      setErrorMessage('Please enter both your institutional ID/email and password.');
       return;
     }
 
@@ -55,7 +63,7 @@ export const LoginPage: React.FC = () => {
     try {
       const loggedUser = await login(identifier.trim(), password, rememberMe);
 
-      // Route strictly based on backend account role
+      // Route strictly based on backend-authenticated account role
       if (loggedUser.role === 'STUDENT') {
         navigate('/student/dashboard');
       } else if (loggedUser.role === 'FACULTY') {
@@ -67,7 +75,8 @@ export const LoginPage: React.FC = () => {
       }
     } catch (err: any) {
       setErrorMessage(
-        err.response?.data?.detail || 'Authentication failed. Please verify your institutional ID and password.'
+        err.response?.data?.detail ||
+          'Authentication failed. Please verify your institutional ID and password.'
       );
     } finally {
       setIsLoading(false);
@@ -86,6 +95,7 @@ export const LoginPage: React.FC = () => {
       setPassword('Password@123');
     }
     setErrorMessage(null);
+    setShowEvaluatorModal(false);
   };
 
   const handleSendOtp = async () => {
@@ -94,7 +104,9 @@ export const LoginPage: React.FC = () => {
     const ok = await sendPhoneCode(phoneNumber);
     if (ok) {
       setOtpStatus('sent');
-      setOtpMessage('Verification code sent via Twilio Verify (or Demo master code: 123456 in simulation mode).');
+      setOtpMessage(
+        'Verification code dispatched via Twilio Verify (or Demo master code: 123456 in simulation mode).'
+      );
     } else {
       setOtpStatus('error');
       setOtpMessage('Failed to dispatch code. Please try again.');
@@ -123,196 +135,186 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F7F9FC]">
-      {/* LEFT SIDE — VISUAL EDITORIAL EXPERIENCE (Desktop ~52% width) */}
-      <div className="w-full lg:w-[52%] relative bg-[#10233F] flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-hidden min-h-[340px] lg:min-h-screen">
-        {/* Authentic high-quality university classroom photograph */}
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-[#F8FAFC]">
+      {/* =========================================================================
+          LEFT SIDE — CINEMATIC EDITORIAL EXPERIENCE (Desktop ~55% width)
+         ========================================================================= */}
+      <div className="w-full lg:w-[55%] relative bg-[#091528] flex flex-col justify-between p-6 sm:p-10 lg:p-16 overflow-hidden min-h-[420px] lg:min-h-screen">
+        {/* Photorealistic high-resolution university classroom photography */}
         <div
-          className="absolute inset-0 bg-cover bg-center mix-blend-luminosity opacity-30 scale-100 transform transition-transform duration-1000 ease-out"
+          className="absolute inset-0 bg-cover bg-center mix-blend-luminosity opacity-40 scale-105 transform transition-transform duration-1000 ease-out"
           style={{
             backgroundImage:
-              'url("https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1920&q=80")',
+              'url("https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=2400&q=85")',
           }}
           aria-hidden="true"
         />
 
-        {/* Subtle Navy / Blue / Teal gradient overlay */}
+        {/* Cinematic Navy / Indigo / Cobalt gradient overlay */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-[#10233F] via-[#10233F]/92 to-[#183B5B]/85"
+          className="absolute inset-0 bg-gradient-to-tr from-[#071120] via-[#0B1E3C]/95 to-[#1D4ED8]/70"
           aria-hidden="true"
         />
 
-        {/* Top Brand Header */}
+        {/* Ambient illumination orbs */}
+        <div
+          className="absolute -top-32 -left-32 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+
+        {/* Top Brand & Status Strip */}
         <div className="relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#159A91] flex items-center justify-center text-white shadow-md shadow-[#159A91]/20">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 ring-1 ring-white/20">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-bold tracking-tight text-white">ClassSphere</span>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-[#159A91]/20 text-[#E6F6F5] border border-[#159A91]/30">
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-400/30">
                   v2.0
                 </span>
               </div>
-              <span className="text-[11px] text-slate-300 tracking-wide block">
-                Intelligent Classroom Monitoring & Management
+              <span className="text-[11px] text-blue-200/80 tracking-wide font-medium">
+                Institutional Classroom Governance
               </span>
             </div>
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#E6F6F5] border border-white/15 text-[11px] font-mono">
-            <Radio className="w-3.5 h-3.5 text-[#159A91] animate-pulse" />
-            <span>Dual Ingestion: SIM / RTSP</span>
+          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-white/90 border border-white/15 text-xs backdrop-blur-md">
+            <Radio className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+            <span className="font-mono text-[11px]">Active Ingestion: SIM / RTSP</span>
           </div>
         </div>
 
-        {/* Center Editorial Focus */}
-        <div className="relative z-10 max-w-xl my-auto py-6 sm:py-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#159A91]/15 border border-[#159A91]/30 text-xs font-semibold text-[#E6F6F5] mb-5">
-            <span className="w-2 h-2 rounded-full bg-[#159A91] animate-pulse" />
-            <span>Operational Institutional SaaS</span>
+        {/* Center Editorial Headline & Narrative */}
+        <div className="relative z-10 max-w-xl my-auto py-8 sm:py-12 lg:py-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-400/30 text-xs font-semibold text-blue-200 mb-6 backdrop-blur-sm">
+            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+            <span>Institutional Education SaaS</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-[42px] font-bold text-white tracking-tight leading-[1.2]">
-            Monitor important events, not personalities.
+          <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-extrabold text-white tracking-tight leading-[1.15] drop-shadow-sm">
+            The classroom, <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-sky-300 to-indigo-200">
+              understood.
+            </span>
           </h1>
 
-          <p className="mt-4 text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-            ClassSphere combines real-time computer vision camera monitoring, multi-modal attendance verification, objective
-            classroom telemetry, and human-verified safety escalations into one unified institutional platform.
+          <p className="mt-5 text-sm sm:text-base text-blue-100/90 leading-relaxed font-normal max-w-lg">
+            A clearer view of attendance, classroom activity and student safety. Combining live computer vision
+            telemetry, multi-modal attendance verification, and human-in-the-loop review.
           </p>
 
-          {/* Three Key Architectural Guarantees */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-white/10 text-xs text-slate-200">
-            <div className="flex items-start gap-2.5">
-              <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center flex-shrink-0 text-[#159A91] mt-0.5">
-                <Camera className="w-3.5 h-3.5" />
+          <div className="mt-6 flex items-center gap-2.5 text-xs text-sky-300/90 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+            <span>Principle: Monitor important events, not personalities.</span>
+          </div>
+
+          {/* Key Architectural Pillars */}
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-8 border-t border-white/10 text-xs text-blue-100">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center mb-2">
+                <Camera className="w-4 h-4" />
               </div>
-              <div>
-                <span className="font-semibold text-white block">Camera Health</span>
-                <span className="text-[11px] text-slate-400">RTSP & Simulated feeds</span>
-              </div>
+              <span className="font-bold text-white block">Camera Health</span>
+              <p className="text-[11px] text-blue-200/70 leading-snug">
+                RTSP streams and honestly labelled simulations.
+              </p>
             </div>
 
-            <div className="flex items-start gap-2.5">
-              <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center flex-shrink-0 text-[#159A91] mt-0.5">
-                <FileCheck2 className="w-3.5 h-3.5" />
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+              <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center mb-2">
+                <FileCheck2 className="w-4 h-4" />
               </div>
-              <div>
-                <span className="font-semibold text-white block">Verified Presence</span>
-                <span className="text-[11px] text-slate-400">Photo & challenge checks</span>
-              </div>
+              <span className="font-bold text-white block">Verified Presence</span>
+              <p className="text-[11px] text-blue-200/70 leading-snug">
+                Dual biometric match and dynamic challenge check-in.
+              </p>
             </div>
 
-            <div className="flex items-start gap-2.5">
-              <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center flex-shrink-0 text-[#159A91] mt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5" />
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+              <div className="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-300 flex items-center justify-center mb-2">
+                <ShieldCheck className="w-4 h-4" />
               </div>
-              <div>
-                <span className="font-semibold text-white block">Human Review</span>
-                <span className="text-[11px] text-slate-400">No automated labels</span>
-              </div>
+              <span className="font-bold text-white block">Human Review</span>
+              <p className="text-[11px] text-blue-200/70 leading-snug">
+                No automated penalties. Faculty reviews all anomalies.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Metadata */}
-        <div className="relative z-10 flex flex-wrap items-center justify-between text-[11px] text-slate-400 pt-4 border-t border-white/10">
+        {/* Bottom Metadata & Institutional Identity */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between text-[11px] text-blue-300/70 pt-6 border-t border-white/10">
           <span>Enterprise Academic Governance System</span>
-          <span className="font-mono text-[#E6F6F5]/70">Department of Computer Science & Engineering</span>
+          <span className="font-mono text-blue-200/80">Department of Computer Science & Engineering</span>
         </div>
       </div>
 
-      {/* RIGHT SIDE — AUTHENTICATION FORM (Desktop ~48% width) */}
-      <div className="w-full lg:w-[48%] flex items-center justify-center p-6 sm:p-10 lg:p-16 bg-white">
-        <div className="w-full max-w-md">
-          {/* Form Header */}
-          <div className="mb-7">
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#172B43] tracking-tight">Institutional Sign In</h2>
-            <p className="mt-1.5 text-xs sm:text-sm text-[#65758B]">
-              Enter your institutional ID or registered academic email to access your authorized portal.
+      {/* =========================================================================
+          RIGHT SIDE — COMPACT EDITORIAL LOGIN FORM (Desktop ~45% width)
+         ========================================================================= */}
+      <div className="w-full lg:w-[45%] flex items-center justify-center p-6 sm:p-10 lg:p-14 bg-white">
+        <div className="w-full max-w-md space-y-6">
+          {/* Header */}
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200/60">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Institutional Single Sign-On</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              Sign in to ClassSphere
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              Enter your institutional ID or registered academic email. Your role permissions are determined securely
+              by the backend.
             </p>
           </div>
 
-          {/* Quick Demo Persona Pills for Evaluators */}
-          <div className="mb-6 p-3.5 rounded-xl bg-[#F7F9FC] border border-[#E2E8F0]">
-            <div className="text-[11px] font-semibold tracking-wider uppercase text-[#65758B] mb-2 flex items-center justify-between">
-              <span>Quick Demo Fill (Evaluator Mode)</span>
-              <span className="text-[10px] text-[#159A91] font-medium">1-Click Auto Fill</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickFill('student')}
-                className="px-2.5 py-2 text-xs font-semibold rounded-lg bg-white hover:bg-[#E6F6F5] hover:text-[#159A91] hover:border-[#159A91]/40 border border-[#E2E8F0] transition-all text-[#172B43] shadow-xs text-center cursor-pointer focus-ring"
-              >
-                🎓 Student
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('faculty')}
-                className="px-2.5 py-2 text-xs font-semibold rounded-lg bg-white hover:bg-[#E6F6F5] hover:text-[#159A91] hover:border-[#159A91]/40 border border-[#E2E8F0] transition-all text-[#172B43] shadow-xs text-center cursor-pointer focus-ring"
-              >
-                👨‍🏫 Faculty
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickFill('hod')}
-                className="px-2.5 py-2 text-xs font-semibold rounded-lg bg-white hover:bg-[#E6F6F5] hover:text-[#159A91] hover:border-[#159A91]/40 border border-[#E2E8F0] transition-all text-[#172B43] shadow-xs text-center cursor-pointer focus-ring"
-              >
-                🏛️ HOD
-              </button>
-            </div>
-          </div>
-
-          {/* Error Message Banner */}
+          {/* Error Banner */}
           {errorMessage && (
             <div
-              className="mb-5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-[#DC2626] flex items-start gap-2.5 text-xs font-medium"
+              className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2.5 text-xs font-medium animate-in fade-in duration-200"
               role="alert"
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <div>{errorMessage}</div>
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-600" />
+              <div className="flex-1 leading-relaxed">{errorMessage}</div>
             </div>
           )}
 
-          {/* Sign In Form */}
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-[#172B43] uppercase tracking-wider mb-1.5">
-                Institutional ID or Email
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#65758B]">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <input
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="e.g. STU-2024-001 or faculty@classsphere.edu"
-                  required
-                  className="w-full pl-10 pr-3 py-2.5 text-sm rounded-lg border border-[#CBD5E1] focus:border-[#159A91] focus:ring-2 focus:ring-[#159A91]/20 outline-none transition-all text-[#172B43] bg-white placeholder-[#94A3B8]"
-                />
-              </div>
-            </div>
+            <Input
+              label="Institutional ID or Email"
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="e.g. STU-2024-001 or faculty@classsphere.edu"
+              required
+              leftIcon={<Mail className="w-4 h-4" />}
+            />
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-[#172B43] uppercase tracking-wider">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
                   Password
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowForgotPasswordModal(true)}
-                  className="text-xs text-[#159A91] hover:text-[#117E77] font-semibold cursor-pointer"
+                  className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer transition-colors"
                 >
                   Forgot password?
                 </button>
               </div>
+
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#65758B]">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -321,13 +323,13 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border border-[#CBD5E1] focus:border-[#159A91] focus:ring-2 focus:ring-[#159A91]/20 outline-none transition-all text-[#172B43] bg-white placeholder-[#94A3B8]"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-lg border border-slate-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all text-slate-900 bg-white placeholder-slate-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#65758B] hover:text-[#172B43] cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -336,256 +338,314 @@ export const LoginPage: React.FC = () => {
 
             {/* Remember Me & 2FA Option */}
             <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+              <label className="flex items-center gap-2 cursor-pointer select-none text-slate-600">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded text-[#159A91] focus:ring-[#159A91] border-[#CBD5E1]"
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 cursor-pointer"
                 />
-                <span className="text-[#65758B] font-medium">Remember session</span>
+                <span className="font-medium">Remember session</span>
               </label>
 
               <button
                 type="button"
                 onClick={() => setShowOtpModal(true)}
-                className="text-[#65758B] hover:text-[#159A91] flex items-center gap-1 font-semibold transition-colors cursor-pointer"
+                className="text-slate-600 hover:text-blue-600 flex items-center gap-1 font-semibold transition-colors cursor-pointer"
               >
-                <Smartphone className="w-3.5 h-3.5" />
+                <Smartphone className="w-3.5 h-3.5 text-blue-600" />
                 <span>Phone 2FA (Twilio)</span>
               </button>
             </div>
 
-            {/* Submit Button */}
-            <button
+            {/* Visually Dominant Submit Button */}
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#10233F] hover:bg-[#183B5B] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all duration-150 disabled:opacity-60 cursor-pointer focus-ring"
+              variant="primary"
+              size="lg"
+              fullWidth
+              isLoading={isLoading}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+              className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-500/20 text-white font-bold"
             >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+              Sign In to Portal
+            </Button>
           </form>
 
-          {/* Account Activation Footer */}
-          <div className="mt-6 pt-5 border-t border-[#E2E8F0] flex items-center justify-between text-xs text-[#65758B]">
-            <span>Need institutional access?</span>
+          {/* Discreet Evaluator Mode Toggle */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setShowEvaluatorModal(true)}
+              className="w-full py-2 px-3 rounded-lg border border-dashed border-slate-300 hover:border-blue-400 bg-slate-50/70 hover:bg-blue-50/50 text-[11px] font-semibold text-slate-600 hover:text-blue-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-blue-500" />
+              <span>Evaluator Access: Quick Demo Fill</span>
+            </button>
+          </div>
+
+          {/* Activation & Enrollment Footer */}
+          <div className="pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+            <span>Need institutional credentials?</span>
             <button
               type="button"
               onClick={() => setShowActivationModal(true)}
-              className="font-semibold text-[#159A91] hover:text-[#117E77] flex items-center gap-1 cursor-pointer"
+              className="font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>Activate Account</span>
             </button>
           </div>
 
-          {/* Security Notice */}
-          <div className="mt-6 text-center text-[11px] text-[#94A3B8] leading-relaxed">
-            Protected by Argon2id cryptographic password hashing, HMAC-SHA256 JWT rotation, and resource-scoped RBAC.
+          {/* Security Assurance */}
+          <div className="text-center text-[10px] text-slate-400 leading-relaxed font-mono">
+            Argon2id password hashing • HMAC-SHA256 JWT rotation • Institutional RBAC
           </div>
         </div>
       </div>
 
+      {/* =========================================================================
+          MODALS & DIALOGS
+         ========================================================================= */}
+
+      {/* Evaluator Quick Demo Modal */}
+      <Modal
+        isOpen={showEvaluatorModal}
+        onClose={() => setShowEvaluatorModal(false)}
+        title="Evaluator Quick Credentials"
+        subtitle="Select a pre-seeded institutional account for evaluation. Permissions are determined strictly by the backend."
+        maxWidth="md"
+      >
+        <div className="space-y-3">
+          <div className="p-3.5 rounded-xl border border-blue-200 bg-blue-50/60 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs">
+              STU
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 text-xs">Student Persona (Aurora Theme)</span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                  Aarav Sharma
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Access personal attendance, class companion, telemetry history, and what-if simulator.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('student')}
+                className="mt-2.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs"
+              >
+                Auto-fill Student Credentials
+              </button>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs">
+              FAC
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 text-xs">Faculty Persona (Emerald Studio)</span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                  Dr. Ramesh Kulkarni
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Classroom operations workspace, live computer vision monitoring, attendance verification, and safety.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('faculty')}
+                className="mt-2.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs"
+              >
+                Auto-fill Faculty Credentials
+              </button>
+            </div>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-purple-200 bg-purple-50/60 flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg bg-purple-700 text-white flex items-center justify-center flex-shrink-0 font-bold text-xs">
+              HOD
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 text-xs">HOD Persona (Executive Plum)</span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                  Prof. Dr. Arvind Swaminathan
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 mt-0.5">
+                Departmental executive oversight, academic auditing, safety escalation decisions, and CSV facility.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleQuickFill('hod')}
+                className="mt-2.5 px-3 py-1.5 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-xs"
+              >
+                Auto-fill HOD Credentials
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
       {/* Forgot Password Modal */}
-      {showForgotPasswordModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-[#E2E8F0] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-              <div className="flex items-center gap-2 text-[#10233F]">
-                <HelpCircle className="w-5 h-5 text-[#159A91]" />
-                <h3 className="font-bold text-sm sm:text-base">Institutional Password Recovery</h3>
-              </div>
-              <button
-                onClick={() => setShowForgotPasswordModal(false)}
-                className="text-[#65758B] hover:text-[#172B43] p-1 text-sm font-bold cursor-pointer"
-              >
-                ✕
-              </button>
+      <Modal
+        isOpen={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+        title="Institutional Password Recovery"
+        subtitle="Security protocol prevents unverified public password resets"
+        maxWidth="md"
+        footer={
+          <Button variant="primary" size="sm" onClick={() => setShowForgotPasswordModal(false)}>
+            Understood
+          </Button>
+        }
+      >
+        <div className="text-xs text-slate-600 space-y-3 leading-relaxed">
+          <p>
+            To prevent identity impersonation and ensure tamper-evident academic records, ClassSphere passwords cannot
+            be reset through unverified self-service emails.
+          </p>
+          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+            <span className="font-bold text-slate-900 block">Department of Computer Science & Engineering</span>
+            <div className="text-[11px] text-slate-500 space-y-1 font-mono">
+              <div>Admin Contact: hod@classsphere.edu</div>
+              <div>Office: Main Engineering Block, Room 301</div>
+              <div>Verification: Institutional photo ID required in person</div>
             </div>
-
-            <div className="text-xs text-[#65758B] space-y-2 leading-relaxed">
-              <p>
-                To maintain institutional security and audit integrity, ClassSphere passwords cannot be reset via unverified self-service emails.
-              </p>
-              <p className="font-medium text-[#172B43]">
-                Please contact your Department Administrator or Department Head (HOD):
-              </p>
-              <ul className="list-disc pl-5 space-y-1 text-[11px] text-[#65758B]">
-                <li>Department: Computer Science & Engineering (School of Computing)</li>
-                <li>Administrative Email: <code className="font-mono text-[#10233F]">hod@classsphere.edu</code></li>
-                <li>Office: Main Engineering Block, Room 301</li>
-              </ul>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowForgotPasswordModal(false)}
-              className="w-full py-2 bg-[#10233F] text-white text-xs font-semibold rounded-lg hover:bg-[#183B5B] transition-colors cursor-pointer"
-            >
-              Understood
-            </button>
           </div>
         </div>
-      )}
+      </Modal>
 
-      {/* Account Activation / Enrollment Check Modal */}
-      {showActivationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 border border-[#E2E8F0] space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-              <div className="flex items-center gap-2 text-[#10233F]">
-                <UserPlus className="w-5 h-5 text-[#159A91]" />
-                <h3 className="font-bold text-sm sm:text-base">Activate Institutional Account</h3>
+      {/* Account Activation Modal */}
+      <Modal
+        isOpen={showActivationModal}
+        onClose={() => {
+          setShowActivationModal(false);
+          setActivationStatus(null);
+          setActivationId('');
+        }}
+        title="Activate Institutional Account"
+        subtitle="Verify pre-provisioned enrollment records"
+        maxWidth="md"
+      >
+        <form onSubmit={handleActivationSubmit} className="space-y-4">
+          <Input
+            label="Institutional ID / Roll Number"
+            type="text"
+            value={activationId}
+            onChange={(e) => setActivationId(e.target.value)}
+            placeholder="e.g. STU-2024-001 or FAC-1001"
+            required
+            helperText="Check your department enrollment receipt or faculty appointment letter."
+          />
+
+          {activationStatus && (
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs leading-relaxed">
+              <div className="font-bold flex items-center gap-1.5 mb-1">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Enrollment Record Verified</span>
               </div>
-              <button
-                onClick={() => {
-                  setShowActivationModal(false);
-                  setActivationStatus(null);
-                  setActivationId('');
-                }}
-                className="text-[#65758B] hover:text-[#172B43] p-1 text-sm font-bold cursor-pointer"
-              >
-                ✕
-              </button>
+              {activationStatus}
             </div>
+          )}
 
-            <form onSubmit={handleActivationSubmit} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#172B43] uppercase tracking-wider mb-1">
-                  Institutional ID / Roll Number
-                </label>
-                <input
-                  type="text"
-                  value={activationId}
-                  onChange={(e) => setActivationId(e.target.value)}
-                  placeholder="e.g. STU-2024-001 or FAC-1001"
-                  required
-                  className="w-full px-3 py-2 text-sm border border-[#CBD5E1] rounded-lg outline-none focus:border-[#159A91]"
-                />
-              </div>
-
-              {activationStatus && (
-                <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs leading-relaxed">
-                  <div className="font-semibold flex items-center gap-1.5 mb-1">
-                    <CheckCircle2 className="w-4 h-4 text-[#159B68]" />
-                    <span>Account Active</span>
-                  </div>
-                  {activationStatus}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full py-2 bg-[#159A91] text-white text-xs font-semibold rounded-lg hover:bg-[#117E77] transition-colors cursor-pointer"
-              >
-                Verify Enrollment Record
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+          <Button type="submit" variant="primary" fullWidth size="md">
+            Verify Enrollment Record
+          </Button>
+        </form>
+      </Modal>
 
       {/* Phone OTP Modal (Twilio Verify FR-01) */}
-      {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-sm w-full p-6 border border-[#E2E8F0]">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#E2E8F0]">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#E6F6F5] text-[#159A91]">
-                  <Smartphone className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-[#172B43]">Phone 2FA Ownership</h3>
-                  <span className="text-[10px] text-[#65758B]">Twilio Verify Protocol</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowOtpModal(false)}
-                className="text-[#65758B] hover:text-[#172B43] text-sm font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-xs text-[#65758B] mb-4 leading-relaxed">
-              Verifies account phone ownership via Twilio Verify OTP dispatch. (Note: Verifies device possession, not classroom presence).
-            </p>
+      <Modal
+        isOpen={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        title="Phone 2FA Ownership"
+        subtitle="Twilio Verify Protocol — device possession verification"
+        maxWidth="sm"
+      >
+        <div className="space-y-4 text-xs">
+          <p className="text-slate-600 leading-relaxed">
+            Verifies account phone ownership via Twilio Verify OTP dispatch. (Note: Verifies device possession, not
+            classroom presence).
+          </p>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#65758B] mb-1">Registered Phone Number</label>
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="+919876543201"
-                    className="flex-1 px-3 py-2 text-sm border border-[#CBD5E1] rounded-lg outline-none focus:border-[#159A91]"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={otpStatus === 'sending'}
-                    className="px-3 py-2 bg-[#159A91] text-white rounded-lg text-xs font-semibold hover:bg-[#117E77] transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {otpStatus === 'sending' ? 'Sending...' : 'Send OTP'}
-                  </button>
-                </div>
-              </div>
-
-              {otpStatus !== 'idle' && (
-                <div>
-                  <label className="block text-xs font-semibold text-[#65758B] mb-1">Enter 6-Digit Code</label>
-                  <input
-                    type="text"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value)}
-                    placeholder="123456"
-                    maxLength={6}
-                    className="w-full px-3 py-2 text-sm tracking-widest text-center border border-[#CBD5E1] rounded-lg outline-none focus:border-[#159A91] font-mono"
-                  />
-                </div>
-              )}
-
-              {otpMessage && (
-                <div
-                  className={`text-xs p-2.5 rounded-lg ${
-                    otpStatus === 'verified'
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                      : otpStatus === 'error'
-                      ? 'bg-red-50 text-[#DC2626] border border-red-200'
-                      : 'bg-blue-50 text-[#183B5B] border border-blue-200'
-                  }`}
-                >
-                  {otpMessage}
-                </div>
-              )}
-
-              {otpStatus === 'verified' ? (
-                <div className="flex items-center justify-center gap-1.5 text-xs text-[#159B68] font-bold py-2">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Phone ownership verified!</span>
-                </div>
-              ) : (
-                <button
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">Registered Phone Number</label>
+              <div className="flex gap-2">
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+919876543201"
+                  className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:border-blue-600 font-mono"
+                />
+                <Button
                   type="button"
-                  onClick={handleVerifyOtp}
-                  disabled={!otpCode || otpStatus === 'verifying'}
-                  className="w-full py-2 bg-[#10233F] text-white text-xs font-semibold rounded-lg hover:bg-[#183B5B] transition-colors disabled:opacity-50 mt-2 cursor-pointer"
+                  variant="primary"
+                  size="sm"
+                  onClick={handleSendOtp}
+                  disabled={otpStatus === 'sending'}
+                  isLoading={otpStatus === 'sending'}
                 >
-                  {otpStatus === 'verifying' ? 'Verifying...' : 'Submit Verification Code'}
-                </button>
-              )}
+                  Send OTP
+                </Button>
+              </div>
             </div>
+
+            {otpStatus !== 'idle' && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Enter 6-Digit Code</label>
+                <input
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="123456"
+                  maxLength={6}
+                  className="w-full px-3 py-2 text-sm tracking-widest text-center border border-slate-300 rounded-lg outline-none focus:border-blue-600 font-mono font-bold"
+                />
+              </div>
+            )}
+
+            {otpMessage && (
+              <div
+                className={`p-2.5 rounded-xl text-xs ${
+                  otpStatus === 'verified'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                    : otpStatus === 'error'
+                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                    : 'bg-blue-50 text-blue-800 border border-blue-200'
+                }`}
+              >
+                {otpMessage}
+              </div>
+            )}
+
+            {otpStatus === 'verified' ? (
+              <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-600 font-bold py-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Phone ownership verified!</span>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="primary"
+                fullWidth
+                size="md"
+                onClick={handleVerifyOtp}
+                disabled={!otpCode || otpStatus === 'verifying'}
+                isLoading={otpStatus === 'verifying'}
+              >
+                Submit Verification Code
+              </Button>
+            )}
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

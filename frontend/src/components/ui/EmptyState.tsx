@@ -1,40 +1,47 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
+import { Button } from './Button';
 
-interface EmptyStateProps {
-  icon: LucideIcon;
+export interface EmptyStateProps {
   title: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
+  icon?: React.ElementType | React.ReactNode;
   className?: string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon: Icon,
   title,
   description,
   actionLabel,
   onAction,
+  icon,
   className = '',
 }) => {
+  const renderIcon = () => {
+    if (!icon) return <FolderOpen className="w-6 h-6" />;
+    if (React.isValidElement(icon)) return icon;
+    if (typeof icon === 'function' || typeof icon === 'object') {
+      const IconComponent = icon as React.ElementType;
+      return <IconComponent className="w-6 h-6" />;
+    }
+    return <FolderOpen className="w-6 h-6" />;
+  };
+
   return (
-    <div className={`p-8 sm:p-12 text-center rounded-xl border border-dashed border-slate-200 bg-white ${className}`}>
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-400 border border-slate-100">
-        <Icon className="h-6 w-6" aria-hidden="true" />
+    <div className={`py-14 p-6 bg-white rounded-2xl border border-[var(--role-border)] text-center max-w-md mx-auto space-y-4 card-elevation ${className}`}>
+      <div className="w-12 h-12 rounded-2xl bg-[var(--role-soft)] border border-[var(--role-soft-border)] text-[var(--role-primary)] flex items-center justify-center mx-auto shadow-xs">
+        {renderIcon()}
       </div>
-      <h3 className="mt-3 text-sm font-semibold text-textPrimary tracking-tight">{title}</h3>
-      <p className="mt-1 text-xs text-textSecondary max-w-sm mx-auto leading-relaxed">{description}</p>
+      <div className="space-y-1">
+        <h4 className="text-sm font-bold text-[var(--role-text)] tracking-tight">{title}</h4>
+        <p className="text-xs text-[var(--role-text-muted)] leading-relaxed max-w-sm mx-auto">{description}</p>
+      </div>
       {actionLabel && onAction && (
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={onAction}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-teal text-white hover:bg-teal-hover transition-colors shadow-subtle cursor-pointer focus-ring"
-          >
-            {actionLabel}
-          </button>
-        </div>
+        <Button size="sm" variant="secondary" onClick={onAction}>
+          {actionLabel}
+        </Button>
       )}
     </div>
   );

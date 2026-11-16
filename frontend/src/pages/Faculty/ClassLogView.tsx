@@ -27,7 +27,7 @@ export const ClassLogView: React.FC = () => {
         setLogs(res);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load session logs.');
         setLoading(false);
       });
@@ -60,12 +60,12 @@ export const ClassLogView: React.FC = () => {
       {/* Contextual Tabs */}
       <TabsNav tabs={classroomTabs} className="mb-6" />
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation space-y-6">
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <NavLink
               to={`/faculty/class/${id}/dashboard`}
-              className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-textSecondary transition-colors border border-slate-200"
+              className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors border border-slate-200"
               title="Return to Class Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -75,7 +75,7 @@ export const ClassLogView: React.FC = () => {
               <p className="text-xs text-textSecondary">Recorded events from system sensors, camera feeds, and faculty actions</p>
             </div>
           </div>
-          <span className="text-xs font-mono px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-600">
+          <span className="text-xs font-mono px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 font-bold">
             Session ID: #{id}
           </span>
         </div>
@@ -87,22 +87,22 @@ export const ClassLogView: React.FC = () => {
             description="No system or faculty events have been logged for this class session yet."
           />
         ) : (
-          <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+          <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-emerald-200">
             {logs.map((log) => (
               <div key={log.id} className="relative">
-                <div className="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-teal ring-4 ring-white" />
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1">
+                <div className="absolute -left-[27px] top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-600 ring-4 ring-white shadow-xs" />
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1 hover:border-emerald-500/30 transition-all">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#10233F] font-mono uppercase tracking-wide">
+                    <span className="text-xs font-bold text-emerald-950 font-mono uppercase tracking-wide">
                       {log.event_type}
                     </span>
-                    <span className="text-[11px] font-mono text-textSecondary">
+                    <span className="text-[11px] font-mono text-slate-500">
                       {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
                   </div>
                   <p className="text-xs text-textPrimary leading-relaxed mt-1">{log.description}</p>
                   <div className="pt-2 flex items-center gap-2 text-[10px] text-textSecondary font-mono">
-                    <span className="px-2 py-0.5 rounded bg-white border border-slate-200 uppercase font-semibold">
+                    <span className="px-2.5 py-0.5 rounded-md bg-white border border-slate-200 uppercase font-semibold text-slate-600">
                       Source: {log.source}
                     </span>
                   </div>

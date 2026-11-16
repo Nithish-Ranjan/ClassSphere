@@ -60,8 +60,8 @@ export const AcademicOversightView: React.FC = () => {
       <TabsNav tabs={academicTabs} className="mb-6" />
 
       {!isClasses ? (
-        <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden">
-          <div className="p-5 border-b border-mutedBlue flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/60 to-purple-50/20">
             <div>
               <h3 className="font-bold text-textPrimary text-base">Department Faculty Members</h3>
               <p className="text-xs text-textSecondary mt-0.5">Assigned subjects, class execution, and attendance finalization compliance</p>
@@ -72,7 +72,7 @@ export const AcademicOversightView: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search faculty name or ID..."
-                className="w-full px-3 py-2 text-xs border border-mutedBlue rounded-lg bg-surface outline-none focus:border-teal"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white outline-none focus:border-purple-700 focus:ring-2 focus:ring-purple-700/10"
               />
             </div>
           </div>
@@ -88,7 +88,7 @@ export const AcademicOversightView: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-4">Faculty Member</th>
                     <th className="py-3 px-4">Employee ID</th>
@@ -98,25 +98,25 @@ export const AcademicOversightView: React.FC = () => {
                     <th className="py-3 px-4">Attendance Compliance</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-mutedBlue text-textPrimary">
+                <tbody className="divide-y divide-slate-100 text-textPrimary">
                   {filteredFaculty.map((f) => (
-                    <tr key={f.faculty_id} className="hover:bg-surface/50 transition-colors">
+                    <tr key={f.faculty_id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 font-semibold text-textPrimary">
                         {f.full_name}
                         <span className="block text-[11px] text-textSecondary font-normal">{f.email}</span>
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-textSecondary">{f.employee_id}</td>
-                      <td className="py-3.5 px-4">{f.designation}</td>
+                      <td className="py-3.5 px-4 font-mono text-purple-900 font-semibold">{f.employee_id}</td>
+                      <td className="py-3.5 px-4 text-slate-700">{f.designation}</td>
                       <td className="py-3.5 px-4">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1.5">
                           {f.assigned_subjects?.map((s: string, i: number) => (
-                            <span key={i} className="px-2 py-0.5 rounded bg-surface border border-mutedBlue text-[10px] font-medium">
+                            <span key={i} className="px-2 py-0.5 rounded-md bg-purple-50 border border-purple-200/60 text-purple-900 text-[10px] font-medium">
                               {s}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 font-bold text-navy">{f.classes_conducted} sessions</td>
+                      <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">{f.classes_conducted} sessions</td>
                       <td className="py-3.5 px-4">
                         <span className="inline-flex items-center gap-1 font-bold text-brandSuccess">
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -131,8 +131,8 @@ export const AcademicOversightView: React.FC = () => {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden">
-          <div className="p-5 border-b border-mutedBlue flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-slate-50/60 to-purple-50/20">
             <div>
               <h3 className="font-bold text-textPrimary text-base">Class Sessions Directory</h3>
               <p className="text-xs text-textSecondary mt-0.5">Real-time attendance rates, room assignments, and execution state</p>
@@ -143,7 +143,7 @@ export const AcademicOversightView: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search subject, faculty, room..."
-                className="w-full px-3 py-2 text-xs border border-mutedBlue rounded-lg bg-surface outline-none focus:border-teal"
+                className="w-full px-3.5 py-2 text-xs border border-slate-300 rounded-xl bg-white outline-none focus:border-purple-700 focus:ring-2 focus:ring-purple-700/10"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ export const AcademicOversightView: React.FC = () => {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                   <tr>
                     <th className="py-3 px-4">Subject</th>
                     <th className="py-3 px-4">Section & Room</th>
@@ -169,22 +169,26 @@ export const AcademicOversightView: React.FC = () => {
                     <th className="py-3 px-4">Attendance Rate</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-mutedBlue text-textPrimary">
+                <tbody className="divide-y divide-slate-100 text-textPrimary">
                   {filteredClasses.map((c) => (
-                    <tr key={c.session_id} className="hover:bg-surface/50 transition-colors">
+                    <tr key={c.session_id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 font-semibold text-textPrimary">
                         {c.subject_name}
-                        <span className="block text-[11px] font-mono text-textSecondary">{c.subject_code}</span>
+                        <span className="block text-[11px] font-mono text-purple-900 font-semibold">{c.subject_code}</span>
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3.5 px-4 text-slate-700">
                         {c.section_name} • {c.room_number}
                       </td>
-                      <td className="py-3.5 px-4">{c.faculty_name}</td>
+                      <td className="py-3.5 px-4 font-medium text-slate-900">{c.faculty_name}</td>
                       <td className="py-3.5 px-4">
                         <StatusBadge status={c.status} />
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-[10px] text-textSecondary">{c.mode}</td>
-                      <td className="py-3.5 px-4 font-bold text-navy">{c.attendance_pct}%</td>
+                      <td className="py-3.5 px-4 font-mono text-[10px]">
+                        <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">
+                          {c.mode}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-bold text-purple-950 font-mono">{c.attendance_pct}%</td>
                     </tr>
                   ))}
                 </tbody>

@@ -343,4 +343,12 @@ async def test_institutional_csv_import():
         assert dup_res["imported_count"] == 0
         assert dup_res["duplicate_count"] == 2
 
+        # 5. Idempotent cleanup of test records
+        from app.database import AsyncSessionLocal
+        from sqlalchemy import text
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("DELETE FROM students WHERE roll_number IN ('CS24B901', 'CS24B902')"))
+            await session.execute(text("DELETE FROM users WHERE email IN ('aarav.patel@classsphere.edu', 'diya.sharma@classsphere.edu')"))
+            await session.commit()
+
 

@@ -41,84 +41,87 @@ export const ClassIntelligenceView: React.FC = () => {
     <AppShell pageTitle="Class Intelligence & Cameras" pageSubtitle="Department-wide video stream health and telemetry aggregation">
       <TabsNav tabs={intelligenceTabs} className="mb-6" />
 
-      {/* Privacy Pledge Banner */}
-      <div className="bg-navy text-white p-5 rounded-xl border border-navy-light shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-teal flex items-center justify-center text-white flex-shrink-0">
-            <Shield className="w-5 h-5" />
+      {/* Privacy Pledge Banner (Executive Plum theme) */}
+      <div className="bg-gradient-to-r from-[#2E0854] via-purple-900 to-[#1E1B4B] text-white p-6 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-white flex-shrink-0 border border-white/20">
+            <Shield className="w-6 h-6 text-purple-200" />
           </div>
           <div>
-            <div className="text-sm font-bold tracking-tight">Institutional Privacy: Events Only. No Scores. No Labels.</div>
-            <p className="text-xs text-mutedBlue-dark mt-0.5">
-              ClassSphere enforces strict privacy guardrails: objective telemetry counts only. No personality profiles or behavioral grades are ever stored.
+            <div className="text-base font-bold tracking-tight text-white">Institutional Privacy Charter: Events Only. No Scores. No Labels.</div>
+            <p className="text-xs text-purple-200/90 mt-1 leading-relaxed max-w-2xl">
+              ClassSphere enforces strict institutional guardrails: objective telemetry event counts only. No individual personality profiles, engagement ranks, or behavioral grades are ever computed or stored.
             </p>
           </div>
         </div>
+        <span className="text-[11px] font-mono px-3 py-1.5 rounded-xl bg-white/10 text-purple-100 border border-white/20 font-semibold self-start sm:self-auto">
+          Departmental Oversight
+        </span>
       </div>
 
       {isActivity ? (
         <div className="space-y-6">
           {/* Aggregated Event Counters */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white p-5 rounded-xl border border-mutedBlue card-elevation flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface border border-mutedBlue text-navy flex items-center justify-center flex-shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 text-purple-800 flex items-center justify-center flex-shrink-0">
                 <Activity className="w-6 h-6" />
               </div>
               <div>
                 <span className="text-xs text-textSecondary uppercase tracking-wider font-semibold">Total Observed Detections</span>
-                <div className="text-2xl font-bold text-textPrimary mt-0.5">{activityData?.total_recorded_events || 0}</div>
+                <div className="text-2xl font-bold text-slate-900 mt-0.5 font-mono">{activityData?.total_recorded_events || 0}</div>
                 <span className="text-[10px] text-textSecondary">CSE Department overall</span>
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-mutedBlue card-elevation flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 text-darkBlue flex items-center justify-center flex-shrink-0">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0">
                 <Smartphone className="w-6 h-6" />
               </div>
               <div>
                 <span className="text-xs text-textSecondary uppercase tracking-wider font-semibold">Phone Handling Events</span>
-                <div className="text-2xl font-bold text-textPrimary mt-0.5">{activityData?.phone_usage_events || 0}</div>
+                <div className="text-2xl font-bold text-slate-900 mt-0.5 font-mono">{activityData?.phone_usage_events || 0}</div>
                 <span className="text-[10px] text-textSecondary">Device handling detections</span>
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-xl border border-mutedBlue card-elevation flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-light text-teal flex items-center justify-center flex-shrink-0">
+            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-purple-50/70 border border-purple-100 text-purple-900 flex items-center justify-center flex-shrink-0">
                 <MessageSquare className="w-6 h-6" />
               </div>
               <div>
                 <span className="text-xs text-textSecondary uppercase tracking-wider font-semibold">Talking Displacements</span>
-                <div className="text-2xl font-bold text-textPrimary mt-0.5">{activityData?.talking_events || 0}</div>
+                <div className="text-2xl font-bold text-purple-950 mt-0.5 font-mono">{activityData?.talking_events || 0}</div>
                 <span className="text-[10px] text-textSecondary">Optical motion estimates</span>
               </div>
             </div>
           </div>
 
           {/* Department Observability Notice */}
-          <div className="bg-white p-6 rounded-xl border border-mutedBlue card-elevation">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm">
             <h3 className="font-bold text-textPrimary text-base mb-2">Departmental Aggregation Model</h3>
             <p className="text-xs text-textSecondary leading-relaxed">
-              In accordance with educational oversight regulations, student activity counts are aggregated by section and session.
+              In accordance with educational oversight regulations, student activity counts are aggregated strictly by section and session.
               Faculty members review anomalies during their active sessions, and data is retained in accordance with institutional policy.
             </p>
           </div>
         </div>
       ) : (
         /* Camera System Health Table */
-        <div className="bg-white rounded-xl border border-mutedBlue card-elevation overflow-hidden">
-          <div className="p-5 border-b border-mutedBlue flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50/60 to-purple-50/20">
             <div>
               <h3 className="font-bold text-textPrimary text-base">Classroom Camera Systems Health</h3>
               <p className="text-xs text-textSecondary mt-0.5">Physical room feeds, frame rates, and ingestion pipelines</p>
             </div>
-            <span className="text-xs font-mono text-textSecondary bg-surface px-2.5 py-1 rounded border border-mutedBlue">
+            <span className="text-xs font-mono text-purple-900 bg-purple-50 px-3 py-1 rounded-lg border border-purple-200 font-semibold">
               {cameras.length} Active Feeds
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-surface text-textSecondary font-semibold uppercase tracking-wider text-[10px] border-b border-mutedBlue">
+              <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[10px] border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Camera Identifier</th>
                   <th className="py-3 px-4">Classroom</th>
@@ -129,17 +132,17 @@ export const ClassIntelligenceView: React.FC = () => {
                   <th className="py-3 px-4">Heartbeat</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-mutedBlue text-textPrimary">
+              <tbody className="divide-y divide-slate-100 text-textPrimary">
                 {cameras.map((c) => (
-                  <tr key={c.id} className="hover:bg-surface/50 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-navy flex items-center gap-2">
-                      <Video className="w-4 h-4 text-teal" />
+                  <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2">
+                      <Video className="w-4 h-4 text-purple-700" />
                       <span>{c.name}</span>
                     </td>
                     <td className="py-3.5 px-4 font-semibold">{c.room_number}</td>
                     <td className="py-3.5 px-4">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                           c.mode === 'CONNECTED'
                             ? 'bg-emerald-50 text-brandSuccess border border-emerald-200'
                             : 'bg-amber-50 text-brandWarning border border-amber-200'

@@ -17,7 +17,7 @@ import {
 import { AppShell } from '../../components/Layout/AppShell';
 import { studentApi, attendanceApi } from '../../services/api';
 import { ClassCompanionData } from '../../types';
-import { LoadingState, ErrorState, TabsNav, StatusBadge } from '../../components/ui';
+import { LoadingState, ErrorState, TabsNav, StatusBadge, Button } from '../../components/ui';
 import { useWebSocket } from '../../hooks/useWebSocket';
 
 export const ClassCompanion: React.FC = () => {
@@ -40,7 +40,7 @@ export const ClassCompanion: React.FC = () => {
         setCompanion(res);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError('Failed to load active class telemetry.');
         setLoading(false);
       });
@@ -58,7 +58,7 @@ export const ClassCompanion: React.FC = () => {
 
   useEffect(() => {
     loadCompanionData();
-  }, []);
+  }, [loadCompanionData]);
 
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,33 +104,33 @@ export const ClassCompanion: React.FC = () => {
       <TabsNav tabs={overviewTabs} className="mb-6" />
 
       {/* Main Active Session Banner */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 card-elevation space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+      <div className="bg-white rounded-2xl border border-[var(--role-border)] p-6 sm:p-8 card-elevation space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-[#10233F] text-white">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <span className="px-2.5 py-0.5 rounded text-[11px] font-mono font-bold bg-[var(--role-primary)] text-white">
                 {companion?.subject_code || 'CS301'}
               </span>
               <StatusBadge status={companion?.session_status || 'SCHEDULED'} />
-              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-amber-50 text-amber-800 border border-amber-200">
+              <span className="px-2 py-0.5 rounded text-[11px] font-mono bg-amber-50 text-amber-800 border border-amber-300">
                 MODE: {companion?.mode || 'SIMULATION'}
               </span>
-              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-bold ${
-                isWsConnected ? 'bg-teal/10 text-teal border border-teal/30' : 'bg-slate-100 text-slate-500 border border-slate-200'
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold ${
+                isWsConnected ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' : 'bg-slate-100 text-slate-500 border border-slate-200'
               }`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${isWsConnected ? 'bg-teal animate-pulse' : 'bg-slate-400'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full ${isWsConnected ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
                 <span>{isWsConnected ? 'LIVE FEED' : 'OFFLINE'}</span>
               </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-textPrimary tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-[var(--role-text)] tracking-tight">
               {companion?.subject_name || 'Deep Learning & Computer Vision'}
             </h2>
-            <p className="text-xs text-textSecondary mt-1">Topic: {companion?.topic || 'Standard Curriculum Session'}</p>
+            <p className="text-xs text-[var(--role-text-muted)] mt-1">Topic: {companion?.topic || 'Standard Curriculum Session'}</p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-left md:text-right">
-              <span className="text-[11px] uppercase tracking-wider font-semibold text-textSecondary block">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-[var(--role-text-muted)] block">
                 Verification State
               </span>
               <div className="mt-1">
@@ -143,33 +143,33 @@ export const ClassCompanion: React.FC = () => {
         {/* Operational Context Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-textSecondary block">Room Location</span>
-            <span className="text-sm font-bold text-textPrimary mt-1 block">{companion?.room_number || 'Hall A-101'}</span>
-            <span className="text-[11px] text-textSecondary">Physical Classroom</span>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-[var(--role-text-muted)] block">Room Location</span>
+            <span className="text-sm font-bold text-[var(--role-text)] mt-1 block">{companion?.room_number || 'Hall A-101'}</span>
+            <span className="text-[11px] text-[var(--role-text-muted)]">Physical Classroom</span>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-textSecondary block">Scheduled Time</span>
-            <span className="text-sm font-bold text-textPrimary mt-1 block">{companion?.scheduled_time || '09:30 AM - 10:30 AM'}</span>
-            <span className="text-[11px] text-textSecondary">Official Curricular Period</span>
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-[var(--role-text-muted)] block">Scheduled Time</span>
+            <span className="text-sm font-bold text-[var(--role-text)] mt-1 block">{companion?.scheduled_time || '09:30 AM - 10:30 AM'}</span>
+            <span className="text-[11px] text-[var(--role-text-muted)]">Official Curricular Period</span>
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-            <span className="text-[10px] uppercase tracking-wider font-semibold text-textSecondary block">Camera Monitoring</span>
-            <span className="text-sm font-bold text-teal mt-1 block">Telemetry Active</span>
-            <span className="text-[11px] text-textSecondary">Stream Ingestion Pipeline</span>
+          <div className="p-4 rounded-xl bg-[var(--role-soft)] border border-[var(--role-soft-border)]">
+            <span className="text-[10px] uppercase tracking-wider font-semibold text-[var(--role-primary)] block">Camera Monitoring</span>
+            <span className="text-sm font-bold text-[var(--role-primary)] mt-1 block">Telemetry Active</span>
+            <span className="text-[11px] text-[var(--role-text-muted)]">Stream Ingestion Pipeline</span>
           </div>
         </div>
 
         {/* Verification Check-In Card */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-6">
+        <div className="rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50/60 to-indigo-50/40 p-6 sm:p-7">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-teal text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-              <QrCode className="w-5 h-5" />
+            <div className="w-11 h-11 rounded-2xl bg-[var(--role-primary)] text-white flex items-center justify-center flex-shrink-0 shadow-sm shadow-blue-500/20">
+              <QrCode className="w-6 h-6" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-bold text-textPrimary tracking-tight">Active Attendance Session Check-In</h3>
-              <p className="text-xs text-textSecondary mt-1 leading-relaxed">
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">Active Attendance Session Check-In</h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed max-w-xl">
                 Enter the active 6-character challenge code announced or projected on the classroom board by the faculty.
                 <br />
                 <span className="text-slate-500 font-medium">
@@ -180,16 +180,16 @@ export const ClassCompanion: React.FC = () => {
               {/* Status Message Banner */}
               {statusMessage && (
                 <div
-                  className={`mt-4 p-3.5 rounded-lg text-xs flex items-start gap-2.5 ${
+                  className={`mt-4 p-3.5 rounded-xl text-xs flex items-start gap-2.5 ${
                     checkInStatus === 'success'
-                      ? 'bg-emerald-50 text-brandSuccess border border-emerald-200 font-semibold'
-                      : 'bg-red-50 text-brandDanger border border-red-200'
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold'
+                      : 'bg-rose-50 text-rose-700 border border-rose-200'
                   }`}
                 >
                   {checkInStatus === 'success' ? (
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-600" />
                   ) : (
-                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-600" />
                   )}
                   <div>{statusMessage}</div>
                 </div>
@@ -203,22 +203,17 @@ export const ClassCompanion: React.FC = () => {
                   onChange={(e) => setChallengeInput(e.target.value.toUpperCase())}
                   placeholder="Enter 6-char PIN (e.g. CS94A2)"
                   maxLength={8}
-                  className="px-4 py-2.5 text-sm tracking-wider font-mono font-bold uppercase rounded-lg border border-slate-300 bg-white outline-none focus:border-teal focus:ring-2 focus:ring-teal/20"
+                  className="px-4 py-2.5 text-sm tracking-wider font-mono font-bold uppercase rounded-lg border border-slate-300 bg-white outline-none focus:border-[var(--role-primary)] focus:ring-2 focus:ring-[var(--role-ring)]"
                 />
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
                   disabled={checkInStatus === 'submitting' || !challengeInput.trim()}
-                  className="px-5 py-2.5 rounded-lg bg-[#10233F] hover:bg-[#183B5B] text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-subtle"
+                  isLoading={checkInStatus === 'submitting'}
+                  rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
-                  {checkInStatus === 'submitting' ? (
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <span>Record Check-In</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
+                  Record Check-In
+                </Button>
               </form>
             </div>
           </div>
