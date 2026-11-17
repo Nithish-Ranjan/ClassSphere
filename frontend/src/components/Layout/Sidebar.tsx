@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   Users,
   FileText,
+  Calendar,
   LogOut,
   Sparkles,
 } from 'lucide-react';
@@ -117,6 +118,12 @@ export const Sidebar: React.FC = () => {
           to: '/hod/faculty-overview',
           matchPrefix: '/hod/faculty-overview',
           icon: Users,
+        },
+        {
+          name: 'Timetable',
+          to: '/hod/timetable',
+          matchPrefix: '/hod/timetable',
+          icon: Calendar,
         },
         {
           name: 'Class Intelligence',

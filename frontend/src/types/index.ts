@@ -39,6 +39,9 @@ export interface ClassSessionItem {
 export interface ClassCompanionData {
   active: boolean;
   session_id?: number;
+  attendance_session_id?: number;
+  confidence_score?: number;
+  verification_method?: string;
   subject_name?: string;
   subject_code?: string;
   room_number?: string;
@@ -92,19 +95,6 @@ export interface AttendanceSessionData {
   records: AttendanceRecordItem[];
 }
 
-export interface WhatIfResponse {
-  subject_id: number;
-  subject_name: string;
-  current_conducted: number;
-  current_attended: number;
-  current_percentage: number;
-  simulated_conducted: number;
-  simulated_attended: number;
-  projected_percentage: number;
-  percentage_delta: number;
-  simulation_note: string;
-}
-
 export interface Camera {
   id: number;
   name: string;
@@ -133,6 +123,18 @@ export interface DetectionBox {
 export interface CameraStreamState {
   mode: 'SIMULATION' | 'CONNECTED';
   simulation_label: string;
+  honest_label?: string;
+  source_mode?: string;
+  stream_health_telemetry?: {
+    source_mode: string;
+    status: string;
+    fps: number;
+    resolution: string;
+    stream_health: string;
+    honest_label: string;
+    is_simulation: boolean;
+    frame_timestamp: string;
+  };
   frame_id: number;
   timestamp: string;
   camera_id: number;

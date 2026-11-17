@@ -13,7 +13,7 @@ from app.models.attendance import AttendanceRecord, AttendanceSession, Attendanc
 from app.models.event import ActivityEvent, EventType
 from app.core.dependencies import require_student
 from app.schemas.academic import TimetableOut, ClassSessionOut
-from app.schemas.attendance import SubjectAttendanceOut, AttendanceRecordOut, WhatIfRequest, WhatIfResponse
+from app.schemas.attendance import SubjectAttendanceOut, AttendanceRecordOut
 from app.schemas.event import ActivityEventOut, ActivityComparisonOut
 
 router = APIRouter(prefix="/api/students", tags=["Student Portal"])
@@ -121,6 +121,9 @@ async def get_class_companion(
     # Check attendance status of student in this session
     attendance_status = "NOT_TAKEN"
     has_session = current_session.attendance_session is not None
+    attendance_session_id = current_session.attendance_session.id if has_session else None
+    confidence_score = None
+    verification_method = None
     if has_session:
         rec_q = select(AttendanceRecord).where(
             AttendanceRecord.attendance_session_id == current_session.attendance_session.id,
@@ -130,12 +133,17 @@ async def get_class_companion(
         rec = rec_res.scalar_one_or_none()
         if rec:
             attendance_status = rec.status.value
+            confidence_score = rec.confidence_score
+            verification_method = rec.verification_method
         else:
             attendance_status = "PENDING_CHECKIN"
 
     return {
         "active": True,
         "session_id": current_session.id,
+        "attendance_session_id": attendance_session_id,
+        "confidence_score": confidence_score,
+        "verification_method": verification_method,
         "subject_name": current_session.subject.name,
         "subject_code": current_session.subject.code,
         "room_number": current_session.room_number,
@@ -228,53 +236,6 @@ async def get_attendance_history(
             "marked_at": r.marked_at.isoformat()
         })
     return items
-
-
-@router.post("/attendance/what-if", response_model=WhatIfResponse)
-async def simulate_what_if(
-    req: WhatIfRequest,
-    current_user: User = Depends(require_student),
-    db: AsyncSession = Depends(get_db)
-):
-    student = await _get_student_for_user(current_user, db)
-
-    subj = await db.get(Subject, req.subject_id)
-    if not subj:
-        raise HTTPException(status_code=404, detail="Subject not found")
-
-    rec_q = select(AttendanceRecord).join(ClassSession, AttendanceRecord.class_session_id == ClassSession.id).where(
-        AttendanceRecord.student_id == student.id,
-        ClassSession.subject_id == subj.id
-    )
-    rec_res = await db.execute(rec_q)
-    records = rec_res.scalars().all()
-
-    curr_conducted = len(records)
-    curr_attended = sum(1 for r in records if r.status in [AttendanceStatus.PRESENT, AttendanceStatus.LATE])
-    curr_pct = round((curr_attended / curr_conducted * 100), 1) if curr_conducted > 0 else 100.0
-
-    # Calculate simulation
-    sim_conducted = curr_conducted + req.simulate_classes_present + req.simulate_classes_absent
-    sim_attended = curr_attended + req.simulate_classes_present
-    proj_pct = round((sim_attended / sim_conducted * 100), 1) if sim_conducted > 0 else 100.0
-    delta = round(proj_pct - curr_pct, 1)
-
-    note = "Simulation does not alter actual academic records. Safe projection."
-    if proj_pct < 75.0:
-        note += " Warning: Attendance drops below the mandatory 75% institutional threshold."
-
-    return WhatIfResponse(
-        subject_id=subj.id,
-        subject_name=subj.name,
-        current_conducted=curr_conducted,
-        current_attended=curr_attended,
-        current_percentage=curr_pct,
-        simulated_conducted=sim_conducted,
-        simulated_attended=sim_attended,
-        projected_percentage=proj_pct,
-        percentage_delta=delta,
-        simulation_note=note
-    )
 
 
 @router.get("/activity")

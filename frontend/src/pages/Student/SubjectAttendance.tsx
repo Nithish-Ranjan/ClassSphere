@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Calendar, Calculator, BookOpen, AlertTriangle, CheckCircle2, TrendingUp, Award } from 'lucide-react';
+import { CheckCircle, Calendar, BookOpen, AlertTriangle, CheckCircle2, TrendingUp, Award } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { studentApi } from '../../services/api';
 import { SubjectAttendance } from '../../types';
@@ -13,7 +13,6 @@ export const SubjectAttendanceView: React.FC = () => {
   const attendanceTabs = [
     { name: 'Subject-wise Attendance', to: '/student/attendance/subject-wise', icon: CheckCircle },
     { name: 'Attendance History', to: '/student/attendance/history', icon: Calendar },
-    { name: 'What If Simulator', to: '/student/what-if', icon: Calculator },
   ];
 
   const loadData = () => {

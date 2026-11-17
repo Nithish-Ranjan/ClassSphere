@@ -8,7 +8,7 @@ from app.database import AsyncSessionLocal
 from app.models.user import User, RoleEnum, AuditLog
 from app.models.academic import (
     Department, Subject, Section, Student, Faculty,
-    FacultyAssignment, Enrollment, Timetable
+    FacultyAssignment, Enrollment, Timetable, Room, TimetableSet
 )
 from app.models.session import ClassSession, ClassLog, SessionStatus, OperatingMode
 from app.models.attendance import (
@@ -207,14 +207,40 @@ async def seed_database_if_needed():
             )
             db.add(ref)
 
-        # 5. Timetable entries
+        # 5. Rooms & Timetable
+        room1 = Room(room_number="Hall A-101", building="Main Block", capacity=60, room_type="LECTURE_HALL")
+        room2 = Room(room_number="Lab B-204", building="Science Block", capacity=40, room_type="COMPUTER_LAB")
+        room3 = Room(room_number="Hall C-305", building="Main Block", capacity=75, room_type="LECTURE_HALL")
+        room4 = Room(room_number="Hall D-401", building="Engineering Wing", capacity=50, room_type="LECTURE_HALL")
+        room5 = Room(room_number="Lab C-102", building="Computing Center", capacity=35, room_type="HARDWARE_LAB")
+        db.add_all([room1, room2, room3, room4, room5])
+        await db.flush()
+
+        tt_set = TimetableSet(
+            department_id=dept.id,
+            academic_year="2026-2027",
+            semester=6,
+            section_id=section_a.id,
+            version_number=1,
+            status="PUBLISHED",
+            created_by_user_id=hod_user.id,
+            published_at=datetime.utcnow(),
+            notes="Institutional standard timetable for CSE 6th Semester Section A"
+        )
+        db.add(tt_set)
+        await db.flush()
+
         tt1 = Timetable(
+            timetable_set_id=tt_set.id,
             subject_id=sub_cv.id, section_id=section_a.id, faculty_id=faculty_profile.id,
-            day_of_week=0, start_time=time(9, 30), end_time=time(10, 30), room_number="Hall A-101"
+            day_of_week=0, start_time=time(9, 30), end_time=time(10, 30), room_number="Hall A-101",
+            is_active=True
         )
         tt2 = Timetable(
+            timetable_set_id=tt_set.id,
             subject_id=sub_db.id, section_id=section_a.id, faculty_id=faculty_profile.id,
-            day_of_week=0, start_time=time(11, 00), end_time=time(12, 00), room_number="Hall A-101"
+            day_of_week=0, start_time=time(11, 00), end_time=time(12, 00), room_number="Hall A-101",
+            is_active=True
         )
         db.add_all([tt1, tt2])
         await db.flush()

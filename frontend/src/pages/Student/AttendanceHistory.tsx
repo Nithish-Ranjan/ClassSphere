@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, CheckCircle, Calculator, CheckCircle2, Clock, Camera, FileCheck2, ShieldCheck, History } from 'lucide-react';
+import { Calendar, CheckCircle, CheckCircle2, Clock, Camera, FileCheck2, ShieldCheck, History } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { studentApi } from '../../services/api';
 import { LoadingState, ErrorState, EmptyState, TabsNav, StatusBadge } from '../../components/ui';
@@ -12,7 +12,6 @@ export const AttendanceHistoryView: React.FC = () => {
   const attendanceTabs = [
     { name: 'Subject-wise Attendance', to: '/student/attendance/subject-wise', icon: CheckCircle },
     { name: 'Attendance History', to: '/student/attendance/history', icon: Calendar },
-    { name: 'What If Simulator', to: '/student/what-if', icon: Calculator },
   ];
 
   const loadData = () => {

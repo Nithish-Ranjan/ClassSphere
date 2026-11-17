@@ -8,7 +8,6 @@ import { StudentDashboard } from './pages/Student/StudentDashboard';
 import { ClassCompanion } from './pages/Student/ClassCompanion';
 import { SubjectAttendanceView } from './pages/Student/SubjectAttendance';
 import { AttendanceHistoryView } from './pages/Student/AttendanceHistory';
-import { WhatIfSimulatorView } from './pages/Student/WhatIfSimulator';
 import { MyActivityView } from './pages/Student/MyActivity';
 import { ActivityComparisonView as StudentActivityComparison } from './pages/Student/ActivityComparison';
 
@@ -25,6 +24,7 @@ import { SafetyCenter } from './pages/Faculty/SafetyCenter';
 // HOD Views
 import { HODDashboard } from './pages/HOD/HODDashboard';
 import { AcademicOversightView } from './pages/HOD/AcademicOversight';
+import { TimetableManagementView } from './pages/HOD/TimetableManagement';
 import { ClassIntelligenceView } from './pages/HOD/ClassIntelligence';
 import { SafetyManagementView } from './pages/HOD/SafetyManagement';
 import { AdministrationView } from './pages/HOD/Administration';
@@ -128,11 +128,7 @@ export const App: React.FC = () => {
           />
           <Route
             path="/student/what-if"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT']}>
-                <WhatIfSimulatorView />
-              </ProtectedRoute>
-            }
+            element={<Navigate to="/student/attendance/subject-wise" replace />}
           />
           <Route
             path="/student/activity"
@@ -287,6 +283,14 @@ export const App: React.FC = () => {
             element={
               <ProtectedRoute allowedRoles={['HOD']}>
                 <AcademicOversightView />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hod/timetable"
+            element={
+              <ProtectedRoute allowedRoles={['HOD']}>
+                <TimetableManagementView />
               </ProtectedRoute>
             }
           />

@@ -5,7 +5,6 @@ import {
   SubjectAttendance,
   AttendanceRecordItem,
   AttendanceSessionData,
-  WhatIfResponse,
   Camera,
   CameraStreamState,
   ActivityEventItem,
@@ -105,14 +104,6 @@ export const studentApi = {
     const res = await api.get('/students/attendance/history');
     return res.data;
   },
-  simulateWhatIf: async (subject_id: number, simulate_classes_present: number, simulate_classes_absent: number) => {
-    const res = await api.post<WhatIfResponse>('/students/attendance/what-if', {
-      subject_id,
-      simulate_classes_present,
-      simulate_classes_absent,
-    });
-    return res.data;
-  },
   getMyActivity: async () => {
     const res = await api.get('/students/activity');
     return res.data;
@@ -139,6 +130,24 @@ export const facultyApi = {
   },
   getClassLogs: async (classId: number) => {
     const res = await api.get(`/faculty/classes/${classId}/logs`);
+    return res.data;
+  },
+  getAuthorizedClasses: async () => {
+    const res = await api.get('/faculty/authorized-classes');
+    return res.data;
+  },
+  startClassSession: async (payload: {
+    subject_id: number;
+    section_id: number;
+    room_number: string;
+    session_id?: number;
+    topic?: string;
+  }) => {
+    const res = await api.post('/faculty/classes/start-session', payload);
+    return res.data;
+  },
+  endClassSession: async (sessionId: number) => {
+    const res = await api.post(`/faculty/classes/${sessionId}/end`);
     return res.data;
   },
 };
@@ -174,6 +183,23 @@ export const attendanceApi = {
     const res = await api.post('/attendance/session/finalize', { session_id });
     return res.data;
   },
+  uploadStudentVerificationPhoto: async (sessionId: number, photo: File) => {
+    const formData = new FormData();
+    formData.append('session_id', sessionId.toString());
+    formData.append('photo', photo);
+    const res = await api.post('/attendance/student/verification-photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  },
+  reviewCandidate: async (recordId: number, decision: string, reason?: string) => {
+    const res = await api.post('/attendance/review-candidate', {
+      record_id: recordId,
+      decision,
+      reason,
+    });
+    return res.data;
+  },
 };
 
 // Camera endpoints
@@ -188,6 +214,14 @@ export const cameraApi = {
   },
   toggleMode: async (cameraId: number) => {
     const res = await api.post(`/cameras/${cameraId}/toggle-mode`);
+    return res.data;
+  },
+  setSourceMode: async (cameraId: number, sourceMode: string, rtspUrl?: string, mediaUrl?: string) => {
+    const res = await api.post(`/cameras/${cameraId}/set-source`, {
+      source_mode: sourceMode,
+      rtsp_url: rtspUrl,
+      media_url: mediaUrl,
+    });
     return res.data;
   },
   triggerSimulatedEvent: async (cameraId: number, event_type: string, class_session_id = 1) => {
@@ -296,6 +330,57 @@ export const institutionalImportApi = {
   },
   getTemplate: async (entityType: string) => {
     const res = await api.get(`/hod/import/template/${entityType}`);
+    return res.data;
+  },
+};
+
+// HOD Timetable Management Module
+export const timetableApi = {
+  getCatalogs: async (departmentId?: number) => {
+    const query = departmentId ? `?department_id=${departmentId}` : '';
+    const res = await api.get(`/timetable/catalogs${query}`);
+    return res.data;
+  },
+  getTemplate: async () => {
+    const res = await api.get('/timetable/template');
+    return res.data;
+  },
+  parseTimetable: async (formData: FormData) => {
+    const res = await api.post('/timetable/parse', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return res.data;
+  },
+  validateTimetable: async (payload: {
+    department_id: number;
+    section_id: number;
+    academic_year: string;
+    semester: number;
+    raw_entries: any[];
+    mappings: any;
+  }) => {
+    const res = await api.post('/timetable/validate', payload);
+    return res.data;
+  },
+  publishTimetable: async (payload: {
+    department_id: number;
+    section_id: number;
+    academic_year: string;
+    semester: number;
+    entries: any[];
+    notes?: string;
+  }) => {
+    const res = await api.post('/timetable/publish', payload);
+    return res.data;
+  },
+  getSectionTimetable: async (sectionId: number) => {
+    const res = await api.get(`/timetable/section/${sectionId}`);
+    return res.data;
+  },
+  getFacultyTimetable: async (facultyId: number) => {
+    const res = await api.get(`/timetable/faculty/${facultyId}`);
     return res.data;
   },
 };

@@ -133,10 +133,43 @@ class Enrollment(Base):
     )
 
 
+class Room(Base):
+    __tablename__ = "rooms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    room_number = Column(String(64), unique=True, nullable=False)
+    building = Column(String(64), default="Main Academic Block", nullable=False)
+    capacity = Column(Integer, default=60, nullable=False)
+    room_type = Column(String(32), default="LECTURE_HALL", nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+
+
+class TimetableSet(Base):
+    __tablename__ = "timetable_sets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    department_id = Column(Integer, ForeignKey("departments.id", ondelete="CASCADE"), nullable=False)
+    academic_year = Column(String(16), nullable=False)  # e.g., "2026-2027"
+    semester = Column(Integer, nullable=False)  # e.g., 6
+    section_id = Column(Integer, ForeignKey("sections.id", ondelete="CASCADE"), nullable=False)
+    version_number = Column(Integer, default=1, nullable=False)
+    status = Column(String(32), default="DRAFT", nullable=False)  # DRAFT, VALIDATED, PUBLISHED, ARCHIVED
+    created_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    published_at = Column(DateTime, nullable=True)
+    notes = Column(String(512), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    department = relationship("Department")
+    section = relationship("Section")
+    created_by = relationship("User")
+    entries = relationship("Timetable", back_populates="timetable_set", cascade="all, delete-orphan")
+
+
 class Timetable(Base):
     __tablename__ = "timetables"
 
     id = Column(Integer, primary_key=True, index=True)
+    timetable_set_id = Column(Integer, ForeignKey("timetable_sets.id", ondelete="CASCADE"), nullable=True)
     subject_id = Column(Integer, ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False)
     section_id = Column(Integer, ForeignKey("sections.id", ondelete="CASCADE"), nullable=False)
     faculty_id = Column(Integer, ForeignKey("faculty.id", ondelete="CASCADE"), nullable=False)
@@ -144,7 +177,9 @@ class Timetable(Base):
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
     room_number = Column(String(64), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
 
+    timetable_set = relationship("TimetableSet", back_populates="entries")
     subject = relationship("Subject", back_populates="timetables")
     section = relationship("Section", back_populates="timetables")
     faculty = relationship("Faculty", back_populates="timetables")

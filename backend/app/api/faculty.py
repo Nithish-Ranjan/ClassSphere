@@ -5,10 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
+from pydantic import BaseModel, Field
 from app.database import get_db
-from app.models.user import User
-from app.models.academic import Faculty, Subject, Section, Timetable, Student, Enrollment
-from app.models.session import ClassSession, ClassLog, SessionStatus
+from app.models.user import User, AuditLog
+from app.models.academic import Faculty, Subject, Section, Timetable, Student, Enrollment, FacultyAssignment, Room
+from app.models.session import ClassSession, ClassLog, SessionStatus, OperatingMode
 from app.models.attendance import AttendanceSession, AttendanceRecord, AttendanceStatus
 from app.models.event import ActivityEvent, IncidentRecord, IncidentStatus
 from app.models.camera import Camera
@@ -16,6 +17,14 @@ from app.core.dependencies import require_faculty
 from app.schemas.academic import ClassSessionOut, ClassLogOut
 
 router = APIRouter(prefix="/api/faculty", tags=["Faculty Portal"])
+
+
+class StartSessionRequest(BaseModel):
+    subject_id: int
+    section_id: int
+    room_number: str
+    session_id: Optional[int] = None
+    topic: Optional[str] = "Classroom Lecture"
 
 
 async def _get_faculty_for_user(user: User, db: AsyncSession) -> Faculty:
@@ -260,3 +269,235 @@ async def get_class_logs(
     q = select(ClassLog).where(ClassLog.class_session_id == class_id).order_by(ClassLog.timestamp)
     res = await db.execute(q)
     return res.scalars().all()
+
+
+@router.get("/authorized-classes")
+async def get_faculty_authorized_classes(
+    current_user: User = Depends(require_faculty),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Returns authorized assignments, scheduled class sessions, and rooms for the logged-in faculty.
+    Ensures faculty only select authorized curriculum combinations.
+    """
+    faculty = await _get_faculty_for_user(current_user, db)
+
+    # 1. Fetch authorized curriculum assignments
+    assign_q = select(FacultyAssignment).where(
+        FacultyAssignment.faculty_id == faculty.id
+    ).options(
+        selectinload(FacultyAssignment.subject),
+        selectinload(FacultyAssignment.section)
+    )
+    assign_res = await db.execute(assign_q)
+    assignments = assign_res.scalars().all()
+
+    # 2. Fetch today's scheduled class sessions for this faculty
+    now = datetime.utcnow()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = today_start + timedelta(days=1)
+
+    sess_q = select(ClassSession).where(
+        ClassSession.faculty_id == faculty.id,
+        ClassSession.scheduled_start >= today_start,
+        ClassSession.scheduled_start < today_end
+    ).order_by(ClassSession.scheduled_start).options(
+        selectinload(ClassSession.subject),
+        selectinload(ClassSession.section)
+    )
+    sess_res = await db.execute(sess_q)
+    scheduled_sessions = sess_res.scalars().all()
+
+    # 3. Available rooms
+    room_res = await db.execute(select(Room).where(Room.is_active == True).order_by(Room.room_number))
+    rooms = room_res.scalars().all()
+
+    return {
+        "faculty_id": faculty.id,
+        "faculty_name": current_user.full_name,
+        "authorized_assignments": [
+            {
+                "assignment_id": a.id,
+                "subject_id": a.subject_id,
+                "subject_code": a.subject.code if a.subject else "",
+                "subject_name": a.subject.name if a.subject else "",
+                "section_id": a.section_id,
+                "section_name": a.section.name if a.section else "",
+                "academic_term": a.academic_term
+            }
+            for a in assignments
+        ],
+        "scheduled_sessions": [
+            {
+                "session_id": s.id,
+                "subject_id": s.subject_id,
+                "subject_code": s.subject.code if s.subject else "",
+                "subject_name": s.subject.name if s.subject else "",
+                "section_id": s.section_id,
+                "section_name": s.section.name if s.section else "",
+                "room_number": s.room_number,
+                "scheduled_start": s.scheduled_start.strftime("%I:%M %p"),
+                "scheduled_end": s.scheduled_end.strftime("%I:%M %p"),
+                "status": s.status.value,
+                "topic": s.topic
+            }
+            for s in scheduled_sessions
+        ],
+        "authorized_rooms": [
+            {"id": r.id, "room_number": r.room_number, "building": r.building}
+            for r in rooms
+        ]
+    }
+
+
+@router.post("/classes/start-session")
+async def start_class_session(
+    req: StartSessionRequest,
+    current_user: User = Depends(require_faculty),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Starts an authorized live class session.
+    Backend validates faculty credentials and assignment authorization.
+    Transitions session to ACTIVE and writes class log.
+    """
+    faculty = await _get_faculty_for_user(current_user, db)
+
+    # Validate that faculty is authorized for this subject and section
+    assign_q = select(FacultyAssignment).where(
+        FacultyAssignment.faculty_id == faculty.id,
+        FacultyAssignment.subject_id == req.subject_id,
+        FacultyAssignment.section_id == req.section_id
+    )
+    assign_res = await db.execute(assign_q)
+    if not assign_res.scalar_one_or_none():
+        # Check if also in Timetable
+        tt_q = select(Timetable).where(
+            Timetable.faculty_id == faculty.id,
+            Timetable.subject_id == req.subject_id,
+            Timetable.section_id == req.section_id
+        )
+        tt_res = await db.execute(tt_q)
+        if not tt_res.scalar_one_or_none():
+            raise HTTPException(
+                status_code=403,
+                detail=f"Unauthorized: You are not assigned to teach Subject ID {req.subject_id} for Section ID {req.section_id}."
+            )
+
+    now = datetime.utcnow()
+    target_session = None
+
+    if req.session_id:
+        target_session = await db.get(ClassSession, req.session_id)
+        if not target_session or target_session.faculty_id != faculty.id:
+            raise HTTPException(status_code=404, detail="Scheduled class session not found or unauthorized.")
+
+    if not target_session:
+        # Check if an existing SCHEDULED session exists today for this slot
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        today_end = today_start + timedelta(days=1)
+        existing_q = select(ClassSession).where(
+            ClassSession.faculty_id == faculty.id,
+            ClassSession.subject_id == req.subject_id,
+            ClassSession.section_id == req.section_id,
+            ClassSession.scheduled_start >= today_start,
+            ClassSession.scheduled_start < today_end,
+            ClassSession.status.in_([SessionStatus.SCHEDULED, SessionStatus.ACTIVE])
+        )
+        existing_res = await db.execute(existing_q)
+        target_session = existing_res.scalar_one_or_none()
+
+    if target_session:
+        target_session.status = SessionStatus.ACTIVE
+        target_session.actual_start = now
+        target_session.room_number = req.room_number
+        if req.topic:
+            target_session.topic = req.topic
+    else:
+        # Create authorized session for this class
+        target_session = ClassSession(
+            subject_id=req.subject_id,
+            section_id=req.section_id,
+            faculty_id=faculty.id,
+            room_number=req.room_number,
+            scheduled_start=now,
+            scheduled_end=now + timedelta(hours=1),
+            actual_start=now,
+            status=SessionStatus.ACTIVE,
+            mode=OperatingMode.SIMULATION,
+            topic=req.topic or "Interactive Class Session"
+        )
+        db.add(target_session)
+        await db.flush()
+
+    # Log class start
+    log = ClassLog(
+        class_session_id=target_session.id,
+        event_type="CLASS_STARTED",
+        description=f"Faculty {current_user.full_name} initiated live class session in {req.room_number}.",
+        source="FACULTY",
+        timestamp=now
+    )
+    db.add(log)
+
+    audit = AuditLog(
+        user_id=current_user.id,
+        action="CLASS_SESSION_STARTED",
+        resource=f"ClassSession:{target_session.id}",
+        details=f"Faculty started class for Subject {req.subject_id} in {req.room_number}"
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {
+        "session_id": target_session.id,
+        "status": "ACTIVE",
+        "subject_id": target_session.subject_id,
+        "section_id": target_session.section_id,
+        "room_number": target_session.room_number,
+        "started_at": target_session.actual_start.isoformat(),
+        "topic": target_session.topic,
+        "message": "Class session is now ACTIVE. You can now verify attendance and monitor the classroom feed."
+    }
+
+
+@router.post("/classes/{session_id}/end")
+async def end_class_session(
+    session_id: int,
+    current_user: User = Depends(require_faculty),
+    db: AsyncSession = Depends(get_db)
+):
+    faculty = await _get_faculty_for_user(current_user, db)
+    session = await db.get(ClassSession, session_id)
+    if not session or session.faculty_id != faculty.id:
+        raise HTTPException(status_code=404, detail="Class session not found or unauthorized.")
+
+    now = datetime.utcnow()
+    session.status = SessionStatus.COMPLETED
+    session.actual_end = now
+
+    log = ClassLog(
+        class_session_id=session.id,
+        event_type="CLASS_ENDED",
+        description=f"Faculty {current_user.full_name} concluded class session.",
+        source="FACULTY",
+        timestamp=now
+    )
+    db.add(log)
+
+    audit = AuditLog(
+        user_id=current_user.id,
+        action="CLASS_SESSION_ENDED",
+        resource=f"ClassSession:{session.id}",
+        details=f"Class session concluded at {now.isoformat()}"
+    )
+    db.add(audit)
+    await db.commit()
+
+    return {
+        "session_id": session.id,
+        "status": "COMPLETED",
+        "concluded_at": session.actual_end.isoformat(),
+        "message": "Class session has been concluded."
+    }
+

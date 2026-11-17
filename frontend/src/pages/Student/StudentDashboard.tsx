@@ -296,23 +296,23 @@ export const StudentDashboard: React.FC = () => {
           icon={<BookOpen className="w-5 h-5 text-blue-600" />}
         />
 
-        {/* What-If Simulation Shortcut Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-5 card-elevation flex flex-col justify-between hover:border-blue-300 transition-all">
+        {/* Academic Compliance Portfolio Card */}
+        <div className="bg-white rounded-xl border border-slate-200 p-5 card-elevation flex flex-col justify-between hover:border-aurora-cobalt/40 transition-all">
           <div className="space-y-1">
             <div className="flex items-center justify-between text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              <span>What-If Tool</span>
-              <TrendingUp className="w-4 h-4 text-amber-500" />
+              <span>Attendance Standing</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-base font-bold text-slate-900 tracking-tight">Project Margins</div>
+            <div className="text-base font-bold text-slate-900 tracking-tight">Curricular Courses</div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Model safe margins before upcoming classes without altering official logs.
+              Verified subject-wise attendance breakdown and official session transcripts.
             </p>
           </div>
           <NavLink
-            to="/student/what-if"
-            className="mt-3 inline-flex items-center gap-1.5 text-xs text-blue-600 font-bold hover:text-blue-800 transition-colors"
+            to="/student/attendance/subject-wise"
+            className="mt-3 inline-flex items-center gap-1.5 text-xs text-aurora-cobalt font-bold hover:underline transition-colors"
           >
-            <span>Simulate Attendance</span>
+            <span>View All Subjects</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </NavLink>
         </div>

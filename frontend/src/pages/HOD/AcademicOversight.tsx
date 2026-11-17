@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Users, BookOpen, CheckCircle2, Clock, MapPin, Search } from 'lucide-react';
+import { Users, BookOpen, CheckCircle2, Clock, MapPin, Search, Calendar } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { TabsNav } from '../../components/ui/TabsNav';
 import { LoadingState } from '../../components/ui/LoadingState';
@@ -28,6 +28,7 @@ export const AcademicOversightView: React.FC = () => {
   const academicTabs = [
     { name: 'Faculty Workload & Overview', to: '/hod/faculty-overview', icon: Users, badge: facultyList.length },
     { name: 'Class Sessions Directory', to: '/hod/class-overview', icon: BookOpen, badge: classList.length },
+    { name: 'Timetable Management', to: '/hod/timetable', icon: Calendar },
   ];
 
   if (loading) {

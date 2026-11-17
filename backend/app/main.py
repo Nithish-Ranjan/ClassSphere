@@ -12,7 +12,7 @@ from app.core.security import decode_token
 from app.core.websockets import manager
 from app.api import (
     auth, students, faculty, attendance,
-    camera, events, incidents, hod, notifications, institutional_import
+    camera, events, incidents, hod, notifications, institutional_import, timetable
 )
 from app.seed_data import seed_database_if_needed
 
@@ -67,6 +67,7 @@ app.include_router(events.router)
 app.include_router(incidents.router)
 app.include_router(hod.router)
 app.include_router(institutional_import.router)
+app.include_router(timetable.router)
 app.include_router(notifications.router)
 
 

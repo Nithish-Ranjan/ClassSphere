@@ -60,21 +60,3 @@ class SubjectAttendanceOut(BaseModel):
     attendance_percentage: float
     status: str  # ON_TRACK, AT_RISK, CRITICAL
 
-
-class WhatIfRequest(BaseModel):
-    subject_id: int
-    simulate_classes_present: int = 1
-    simulate_classes_absent: int = 0
-
-
-class WhatIfResponse(BaseModel):
-    subject_id: int
-    subject_name: str
-    current_conducted: int
-    current_attended: int
-    current_percentage: float
-    simulated_conducted: int
-    simulated_attended: int
-    projected_percentage: float
-    percentage_delta: float
-    simulation_note: str

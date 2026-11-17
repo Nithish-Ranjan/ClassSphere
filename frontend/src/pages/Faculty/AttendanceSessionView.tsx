@@ -11,6 +11,14 @@ import {
   FileCheck,
   AlertTriangle,
   Radio,
+  Layers,
+  UserX,
+  UserPlus,
+  Sparkles,
+  SlidersHorizontal,
+  Image as ImageIcon,
+  Check,
+  X,
 } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { attendanceApi } from '../../services/api';
@@ -20,6 +28,7 @@ import { useWebSocket } from '../../hooks/useWebSocket';
 
 export const AttendanceSessionView: React.FC = () => {
   const [sessionData, setSessionData] = useState<AttendanceSessionData | null>(null);
+  const [pipelineResult, setPipelineResult] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -28,6 +37,7 @@ export const AttendanceSessionView: React.FC = () => {
   const [overrideReason, setOverrideReason] = useState('');
   const [showOverrideModal, setShowOverrideModal] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [candidateFilter, setCandidateFilter] = useState<'ALL' | 'UNCERTAIN' | 'MATCHED' | 'DUPLICATE'>('ALL');
 
   const sessionId = 2; // Active demo session
 
@@ -76,14 +86,33 @@ export const AttendanceSessionView: React.FC = () => {
     setActionMessage(null);
     try {
       const res = await attendanceApi.uploadPhoto(sessionId, file);
+      setPipelineResult(res);
       setActionMessage(
-        `Classroom image verified. ${res.verified_matches} high-confidence matches confirmed, ${res.pending_reviews} queued for review.`
+        `Multi-face verification complete. Detected ${res.total_faces_detected} faces, matched ${res.matched_candidates_count} candidates, ${res.uncertain_candidates_count} uncertain queued for review.`
       );
       loadSession();
     } catch (err: any) {
       setActionMessage('Failed to process image. Please check camera resolution.');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleQuickReview = async (recordId: number, decision: string) => {
+    try {
+      await attendanceApi.reviewCandidate(recordId, decision);
+      setActionMessage(`Candidate decision recorded: ${decision.replace(/_/g, ' ')}`);
+      loadSession();
+      if (pipelineResult?.candidate_matches) {
+        setPipelineResult({
+          ...pipelineResult,
+          candidate_matches: pipelineResult.candidate_matches.map((c: any) =>
+            c.record_id === recordId ? { ...c, status: 'CONFIRMED_BY_REVIEWER' } : c
+          ),
+        });
+      }
+    } catch {
+      alert('Failed to update candidate record');
     }
   };
 
@@ -219,6 +248,200 @@ export const AttendanceSessionView: React.FC = () => {
           <span className="text-[10px] text-textSecondary">Held-out reference matching</span>
         </div>
       </div>
+
+      {/* =========================================================================
+          MULTI-FACE CANDIDATE MATCHING & REVIEW INTERFACE
+         ========================================================================= */}
+      {pipelineResult && (
+        <div className="bg-white rounded-2xl border border-emerald-300 card-elevation overflow-hidden mt-6 animate-fadeIn">
+          <div className="p-5 sm:p-6 border-b border-emerald-100 bg-gradient-to-r from-emerald-50/70 via-teal-50/40 to-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-700 text-white">
+                  MULTI-FACE MATCHING INTERFACE
+                </span>
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-white text-emerald-900 border border-emerald-200">
+                  Model: {pipelineResult.model_version}
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                  Image Quality: {Math.round(pipelineResult.image_quality?.quality_score * 100)}%
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-slate-900">
+                Detected Face Candidates & One-to-One Disambiguation
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Evaluates cosine feature distance against registered student biometric references. Duplicate candidates and ambiguous matches are flagged for manual review.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label className="px-3.5 py-2 bg-white hover:bg-slate-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs">
+                <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Repeat Test Run with Another Photo</span>
+                <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploading} />
+              </label>
+            </div>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="px-6 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-slate-500 font-semibold text-[11px] mr-1">Filter Candidates:</span>
+            {[
+              { id: 'ALL', label: `All Candidates (${pipelineResult.candidate_matches?.length || 0})` },
+              { id: 'UNCERTAIN', label: `Uncertain Review Queue (${pipelineResult.uncertain_candidates_count || 0})` },
+              { id: 'MATCHED', label: `High Match (${pipelineResult.matched_candidates_count || 0})` },
+              { id: 'DUPLICATE', label: `Duplicate Candidates (${pipelineResult.duplicate_candidates_count || 0})` },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setCandidateFilter(tab.id as any)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  candidateFilter === tab.id
+                    ? 'bg-emerald-700 text-white shadow-xs'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Candidate Match Grid */}
+          <div className="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pipelineResult.candidate_matches
+              ?.filter((c: any) => {
+                if (candidateFilter === 'UNCERTAIN') return c.status === 'UNCERTAIN';
+                if (candidateFilter === 'MATCHED') return c.status === 'MATCHED_CANDIDATE';
+                if (candidateFilter === 'DUPLICATE') return c.status === 'DUPLICATE_CANDIDATE';
+                return true;
+              })
+              .map((c: any) => {
+                const isMatched = c.status === 'MATCHED_CANDIDATE';
+                const isUncertain = c.status === 'UNCERTAIN';
+                const isDuplicate = c.status === 'DUPLICATE_CANDIDATE';
+                const isConfirmed = c.status === 'CONFIRMED_BY_REVIEWER';
+
+                return (
+                  <div
+                    key={c.face_index}
+                    className={`rounded-2xl border p-4 transition-all space-y-3.5 ${
+                      isDuplicate
+                        ? 'border-purple-300 bg-purple-50/30'
+                        : isUncertain
+                        ? 'border-amber-300 bg-amber-50/20'
+                        : isMatched
+                        ? 'border-emerald-200 bg-white hover:border-emerald-300'
+                        : 'border-slate-200 bg-slate-50/40'
+                    }`}
+                  >
+                    {/* Face crop / detection box header */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-xl bg-slate-900 text-emerald-400 font-mono font-bold text-xs flex items-center justify-center border border-slate-700 shadow-inner">
+                          #{c.face_index}
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono text-slate-500 block">
+                            Box: [{c.bounding_box.width}x{c.bounding_box.height}]
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-700 font-semibold">
+                            Quality: {Math.round(c.face_quality_score * 100)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md font-mono ${
+                          isMatched
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                            : isUncertain
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                            : isDuplicate
+                            ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                            : isConfirmed
+                            ? 'bg-teal-100 text-teal-900 border border-teal-300'
+                            : 'bg-rose-100 text-rose-800'
+                        }`}
+                      >
+                        {c.status.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    {/* Student Candidate Identification */}
+                    <div className="p-3 rounded-xl bg-white border border-slate-200/80 space-y-1">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 block">
+                        Assigned Student Reference
+                      </span>
+                      <h4 className="text-sm font-bold text-slate-900 tracking-tight">
+                        {c.student_name}
+                      </h4>
+                      <p className="text-xs text-slate-500 font-mono">Roll: {c.roll_number}</p>
+                    </div>
+
+                    {/* Model Cosine Similarity Score */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-semibold text-slate-600">Model Cosine Similarity</span>
+                        <span className="font-mono font-bold text-slate-900">
+                          {c.similarity_score ? (c.similarity_score * 100).toFixed(1) : '0.0'}%
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            isMatched
+                              ? 'bg-emerald-500'
+                              : isUncertain
+                              ? 'bg-amber-500'
+                              : isDuplicate
+                              ? 'bg-purple-500'
+                              : 'bg-slate-400'
+                          }`}
+                          style={{ width: `${Math.min(100, (c.similarity_score || 0) * 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic">
+                        Cosine feature distance; not an identity probability.
+                      </p>
+                    </div>
+
+                    {/* Review Controls */}
+                    {!isFinalized && c.record_id && (
+                      <div className="pt-1 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleQuickReview(c.record_id, 'CONFIRM_PRESENT')}
+                          className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Confirm</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleQuickReview(c.record_id, 'MARK_LATE')}
+                          className="py-1.5 px-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] transition-colors cursor-pointer"
+                          title="Mark Late"
+                        >
+                          Late
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleQuickReview(c.record_id, 'REJECT_ABSENT')}
+                          className="py-1.5 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 font-bold text-[11px] transition-colors cursor-pointer"
+                          title="Reject / Absent"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
 
       {/* Roster & Verification Queue Table */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden mt-6">

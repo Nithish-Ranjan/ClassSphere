@@ -25,6 +25,11 @@ import {
   Terminal,
   Cpu,
   Info,
+  X,
+  Image as ImageIcon,
+  Film,
+  Camera as CameraIcon,
+  Check,
 } from 'lucide-react';
 import { AppShell } from '../../components/Layout/AppShell';
 import { TabsNav } from '../../components/ui/TabsNav';
@@ -33,6 +38,8 @@ import { cameraApi } from '../../services/api';
 import { Camera, CameraStreamState } from '../../types';
 import { Button, StatusBadge } from '../../components/ui';
 
+type SourceMode = 'SIMULATED' | 'UPLOADED_IMAGE' | 'UPLOADED_VIDEO' | 'RTSP_CONNECTED';
+
 export const LiveClassroom: React.FC = () => {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<number>(1);
@@ -40,6 +47,13 @@ export const LiveClassroom: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [triggerMessage, setTriggerMessage] = useState<string | null>(null);
   const [eventFilter, setEventFilter] = useState<'ALL' | 'PHONE' | 'TALKING' | 'SAFETY'>('ALL');
+
+  // Media Source Switcher State
+  const [showSourceModal, setShowSourceModal] = useState(false);
+  const [selectedSourceMode, setSelectedSourceMode] = useState<SourceMode>('SIMULATED');
+  const [customRtspUrl, setCustomRtspUrl] = useState('rtsp://192.168.1.120:554/live/ch0');
+  const [customMediaUrl, setCustomMediaUrl] = useState('');
+  const [isSwitchingSource, setIsSwitchingSource] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -61,7 +75,7 @@ export const LiveClassroom: React.FC = () => {
 
   const handleWsEvent = useCallback(
     (event: string, data: any) => {
-      if (event === 'EVENT_DETECTED' || event === 'CAMERA_MODE_CHANGED') {
+      if (event === 'EVENT_DETECTED' || event === 'CAMERA_MODE_CHANGED' || event === 'CAMERA_STATUS_CHANGED') {
         fetchStream();
       } else if (event === 'STUDENT_CHECKIN') {
         setTriggerMessage(`Real-time biometric check-in received: ${data.name} (${data.roll_number})`);
@@ -180,15 +194,18 @@ export const LiveClassroom: React.FC = () => {
       }
     });
 
-    // Top-left Unequivocal Mode Watermark
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
-    ctx.fillRect(12, 12, 340, 26);
+    // Top-left Unequivocal Honest Watermark (Rule 8 Non-Misrepresentation)
+    const watermarkText =
+      streamState.honest_label ||
+      (streamState.mode === 'SIMULATION'
+        ? '[SIMULATION MODE - SYNTHETIC DATA]'
+        : '[CONNECTED CCTV - RTSP PHYSICAL STREAM]');
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.88)';
+    const textWidth = ctx.measureText(watermarkText).width + 24;
+    ctx.fillRect(12, 12, Math.max(textWidth, 280), 26);
     ctx.fillStyle = streamState.mode === 'SIMULATION' ? '#FBBF24' : '#34D399';
     ctx.font = 'bold 10px monospace';
-    const watermarkText =
-      streamState.mode === 'SIMULATION'
-        ? '[SIMULATION MODE — DEMO SYNTHETIC TELEMETRY]'
-        : '[CONNECTED CCTV — RTSP HARDWARE INGESTION]';
     ctx.fillText(watermarkText, 20, 29);
 
     // Top-right Live Timestamp HUD
@@ -199,13 +216,22 @@ export const LiveClassroom: React.FC = () => {
     ctx.fillText(new Date().toLocaleTimeString(), width - 140, 29);
   }, [streamState]);
 
-  const handleToggleMode = async () => {
+  const handleApplySourceMode = async () => {
+    setIsSwitchingSource(true);
     try {
-      const res = await cameraApi.toggleMode(selectedCameraId);
-      setTriggerMessage(res.message);
+      const res = await cameraApi.setSourceMode(
+        selectedCameraId,
+        selectedSourceMode,
+        selectedSourceMode === 'RTSP_CONNECTED' ? customRtspUrl : undefined,
+        selectedSourceMode.startsWith('UPLOADED') ? customMediaUrl : undefined
+      );
+      setTriggerMessage(res.message || `Switched camera feed to ${res.honest_label}`);
+      setShowSourceModal(false);
       fetchStream();
-    } catch {
-      alert('Failed to toggle camera mode');
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Failed to switch camera source mode');
+    } finally {
+      setIsSwitchingSource(false);
     }
   };
 
@@ -257,15 +283,19 @@ export const LiveClassroom: React.FC = () => {
 
           <div className="pt-2 sm:pt-0 border-l border-slate-200 pl-5">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-              Stream Telemetry
+              Stream Telemetry & Health
             </span>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                streamState?.stream_health === 'HEALTHY'
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-50 text-amber-800 border border-amber-300'
+              }`}>
                 <Radio className="w-3 h-3 text-emerald-600 animate-pulse" />
                 <span>{streamState?.stream_health || 'HEALTHY'}</span>
               </span>
               <span className="text-xs font-mono text-slate-600 font-medium">
-                {streamState?.fps || 24} FPS • {streamState?.diagnostics?.latency_ms || 18}ms
+                {streamState?.fps || 24} FPS • {streamState?.resolution || '1280x720'}
               </span>
               <span
                 className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
@@ -298,19 +328,27 @@ export const LiveClassroom: React.FC = () => {
           <Button
             variant="primary"
             size="sm"
-            onClick={handleToggleMode}
+            onClick={() => setShowSourceModal(true)}
             leftIcon={<Sliders className="w-3.5 h-3.5" />}
             className="bg-emerald-700 hover:bg-emerald-800"
           >
-            Switch Ingestion Mode
+            Media Source Controls
           </Button>
         </div>
       </div>
 
       {triggerMessage && (
-        <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2.5 font-medium animate-in fade-in duration-200">
-          <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
-          <span>{triggerMessage}</span>
+        <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between gap-2.5 font-medium animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+            <span>{triggerMessage}</span>
+          </div>
+          <button
+            onClick={() => setTriggerMessage(null)}
+            className="text-emerald-700 hover:text-emerald-900 cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
         </div>
       )}
 
@@ -329,6 +367,11 @@ export const LiveClassroom: React.FC = () => {
                 <span className="text-emerald-300/60 font-mono text-[11px]">
                   • {streamState?.resolution || '1280x720'}
                 </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  streamState?.mode === 'SIMULATION' ? 'bg-amber-900/50 text-amber-300 border border-amber-700/50' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'
+                }`}>
+                  {streamState?.mode === 'SIMULATION' ? 'SIMULATION' : 'PHYSICAL CCTV'}
+                </span>
               </div>
               <div className="flex items-center gap-3 font-mono text-[11px] text-emerald-300">
                 <span>Inference: YOLOv8 Spatial</span>
@@ -345,10 +388,12 @@ export const LiveClassroom: React.FC = () => {
             {/* Bottom In-Feed Diagnostics Strip */}
             <div className="bg-[#0A1612] px-5 py-2.5 text-[11px] font-mono text-emerald-200/70 flex flex-wrap items-center justify-between border-t border-emerald-800/40 gap-2">
               <span>Codec: {streamState?.diagnostics?.encoding || 'H.264'}</span>
-              <span className="font-bold text-amber-300">
-                {streamState?.mode === 'SIMULATION'
-                  ? 'DEMONSTRATION SYNTHETIC TELEMETRY'
-                  : 'CONNECTED HARDWARE RTSP'}
+              <span className={`font-bold font-mono px-2 py-0.5 rounded ${
+                streamState?.mode === 'SIMULATION' ? 'bg-amber-950/80 text-amber-300 border border-amber-800/40' : 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/40'
+              }`}>
+                {streamState?.honest_label || (streamState?.mode === 'SIMULATION'
+                  ? '[SIMULATION MODE - SYNTHETIC DATA]'
+                  : '[CONNECTED CCTV - RTSP PHYSICAL STREAM]')}
               </span>
               <span>Packet Loss: {streamState?.diagnostics?.packet_loss_pct || 0}%</span>
             </div>
@@ -528,6 +573,171 @@ export const LiveClassroom: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Media Source Configuration Modal */}
+      {showSourceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-xl w-full p-6 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                  <Sliders className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Configure Camera Media Source</h3>
+                  <p className="text-xs text-slate-500">Camera #{selectedCameraId} • Physical Room Ingestion</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSourceModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Source Mode Options */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Option 1: Simulated procedural */}
+              <div
+                onClick={() => setSelectedSourceMode('SIMULATED')}
+                className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedSourceMode === 'SIMULATED'
+                    ? 'border-emerald-600 bg-emerald-50/70 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>Procedural Simulation</span>
+                  </div>
+                  {selectedSourceMode === 'SIMULATED' && <Check className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Generates synthetic motion, dynamic spatial boxes and event telemetry at 24 FPS.
+                </p>
+                <span className="inline-block mt-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                  Label: [SIMULATION MODE]
+                </span>
+              </div>
+
+              {/* Option 2: Looping Video */}
+              <div
+                onClick={() => setSelectedSourceMode('UPLOADED_VIDEO')}
+                className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedSourceMode === 'UPLOADED_VIDEO'
+                    ? 'border-emerald-600 bg-emerald-50/70 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <Film className="w-4 h-4 text-indigo-500" />
+                    <span>Looping Test Video</span>
+                  </div>
+                  {selectedSourceMode === 'UPLOADED_VIDEO' && <Check className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Loops pre-recorded lecture session MP4 video through the inference pipeline at 25 FPS.
+                </p>
+                <span className="inline-block mt-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                  Label: [DEMO MEDIA - VIDEO]
+                </span>
+              </div>
+
+              {/* Option 3: Still Image */}
+              <div
+                onClick={() => setSelectedSourceMode('UPLOADED_IMAGE')}
+                className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedSourceMode === 'UPLOADED_IMAGE'
+                    ? 'border-emerald-600 bg-emerald-50/70 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <ImageIcon className="w-4 h-4 text-blue-500" />
+                    <span>Still Photo Ingestion</span>
+                  </div>
+                  {selectedSourceMode === 'UPLOADED_IMAGE' && <Check className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Still classroom photograph evaluated at 1.0 FPS for face clustering & room count.
+                </p>
+                <span className="inline-block mt-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
+                  Label: [DEMO MEDIA - STILL]
+                </span>
+              </div>
+
+              {/* Option 4: Connected RTSP CCTV */}
+              <div
+                onClick={() => setSelectedSourceMode('RTSP_CONNECTED')}
+                className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                  selectedSourceMode === 'RTSP_CONNECTED'
+                    ? 'border-emerald-600 bg-emerald-50/70 shadow-xs'
+                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                    <CameraIcon className="w-4 h-4 text-emerald-600" />
+                    <span>Physical CCTV (RTSP)</span>
+                  </div>
+                  {selectedSourceMode === 'RTSP_CONNECTED' && <Check className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Real-time RTSP/H.264 stream ingestion from installed hardware camera at 30 FPS.
+                </p>
+                <span className="inline-block mt-2 text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                  Label: [CONNECTED CCTV]
+                </span>
+              </div>
+            </div>
+
+            {/* Extra URL config for RTSP */}
+            {selectedSourceMode === 'RTSP_CONNECTED' && (
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <label className="text-xs font-bold text-slate-800 block">RTSP Stream Address / Endpoint</label>
+                <input
+                  type="text"
+                  value={customRtspUrl}
+                  onChange={(e) => setCustomRtspUrl(e.target.value)}
+                  placeholder="rtsp://192.168.1.120:554/live/ch0"
+                  className="w-full px-3.5 py-2 text-xs font-mono rounded-lg border border-slate-300 bg-white outline-none focus:border-emerald-600"
+                />
+                <p className="text-[11px] text-slate-500">
+                  Network cameras must support H.264 video streams over standard RTSP transport.
+                </p>
+              </div>
+            )}
+
+            {/* Non-Misrepresentation Guarantee Notice */}
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2.5 text-xs text-emerald-900">
+              <ShieldCheck className="w-4 h-4 flex-shrink-0 text-emerald-700 mt-0.5" />
+              <div className="text-[11px] leading-relaxed">
+                <strong>Non-Misrepresentation Guarantee:</strong> All synthetic, procedural, or pre-recorded demo feeds will be prominently tagged with an honest on-screen watermark to ensure compliance with institutional safety standards.
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+              <Button variant="outline" size="sm" onClick={() => setShowSourceModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleApplySourceMode}
+                isLoading={isSwitchingSource}
+                className="bg-emerald-700 hover:bg-emerald-800"
+              >
+                Apply Ingestion Source
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 };
